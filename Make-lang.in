@@ -34,7 +34,7 @@ AST_STMT_CPP_FILES := $(wildcard $(srcdir)/sfe/ast/stmt/*.cpp)
 AST_STMT_OBJ_FILES := $(addprefix sfe/ast/stmt/,$(notdir $(AST_STMT_CPP_FILES:.cpp=.o)))
 
 PARSER_CPP_FILES := $(wildcard $(srcdir)/sfe/parser/*.cpp)
-PARSER_OBJ_FILES := $(addprefix sfe/parser/,$(notdir $(AST_PARSER_FILES:.cpp=.o)))
+PARSER_OBJ_FILES := $(addprefix sfe/parser/,$(notdir $(PARSER_CPP_FILES:.cpp=.o)))
 
 SFE_OBJS = sfe/sfe1.o sfe/sfe-lang.o $(AST_OBJ_FILES) $(AST_DECL_OBJ_FILES) $(AST_EXPR_OBJ_FILES) $(AST_STMT_OBJ_FILES) $(PARSER_OBJ_FILES)
 
@@ -47,7 +47,7 @@ sfe/sfe1.o: sfe/sfe1.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
   $(FLAGS_H) toplev.h $(GGC_H) $(TREE_H) $(DIAGNOSTIC_H) \
   input.h options.h opts.h insn-modes.h \
   sfe/sfe-lang.h gtype-sfe.h gt-sfe-sfe1.h
-  
+
 sfe/sfe-lang.o: $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
   $(FLAGS_H) toplev.h $(GGC_H) $(TREE_H) $(DIAGNOSTIC_H) \
   input.h options.h opts.h insn-modes.h
@@ -70,7 +70,7 @@ sfe/ast/stmt/.deps: sfe/ast/.deps
 	mkdir -p sfe/ast/stmt/.deps
 
 sfe/parser/.deps:
-	mkdir -p sfe/ast/.deps
+	mkdir -p sfe/parser/.deps
 
 sfe/ast/%.o: sfe/ast/%.cpp $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
   $(FLAGS_H) toplev.h $(GGC_H) $(TREE_H) $(DIAGNOSTIC_H) \
@@ -86,7 +86,7 @@ sfe/parser/%.o: sfe/parser/%.cpp $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
 	$(COMPILE) $(SFEINCLUDES) $<
 	$(POSTCOMPILE)
 
-sfe.srcextra: 
+sfe.srcextra:
 
 sfe.all.cross:
 
@@ -99,21 +99,21 @@ sfe.tags: force
 	cd $(srcdir)/sfe;\
 	etags -o TAGS.sub *.y *.l *.c *.h; ast/*.h ast/*.cpp \
 	etags --include TAGS.sub --include ../TAGS.sub
-sfe.info: 
-sfe.srcinfo: 
-sfe.dvi: 
-sfe.pdf: 
-doc/sfe.info: 
-doc/sfe.dvi: 
-doc/sfe.pdf: 
-sfe.html: 
+sfe.info:
+sfe.srcinfo:
+sfe.dvi:
+sfe.pdf:
+doc/sfe.info:
+doc/sfe.dvi:
+doc/sfe.pdf:
+sfe.html:
 
 .phony:sfe.install.common
 .phony:sfe.install
 
-sfe.install-common: 
-sfe.install-info: 
-sfe.install-pdf: 
+sfe.install-common:
+sfe.install-info:
+sfe.install-pdf:
 sfe.install-man:
 
 # Stage hooks:
