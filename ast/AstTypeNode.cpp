@@ -90,7 +90,7 @@ AstArrTypeNode::translate(
     t = build_array_type(
         elemType,
         build_index_type(
-            size_int( mEnd - mBegin + 1 ) ) );
+            size_int( mEnd - mBegin ) ) );
 
     return true;
 }
