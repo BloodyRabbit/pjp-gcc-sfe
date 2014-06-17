@@ -1,0 +1,93 @@
+#############
+# Gramatika #
+#############
+program = 'program' identifikátor ';' {deklarace-globální} složený-příkaz '.'
+
+deklarace-globální = 'function' funkce
+                   | 'procedure' procedura
+                   | deklarace-lokální
+
+deklarace-lokální = 'const' konstanta {konstanta}
+                  | 'var' proměnná {proměnná}
+
+konstanta = identifikátor-konstanty {',' identifikátor-konstanty} '=' [-] číslo ';'
+
+proměnná = identifikátor-proměnné {',' identifikátor-proměnné} ':' identifikátor-typu ';'
+
+funkce = identifikátor-funkce '(' seznam-argumentů ')' ':' identifikátor-typu ';' tělo-funkce ';'
+
+procedura = identifikátor-funkce '(' seznam-argumentů ')' ';' tělo-funkce ';'
+
+seznam-argumentů = identifikátor-proměnné ':' identifikátor-typu {';' identifikátor-proměnné ':' identifikátor-typu}
+                 | 'eps'
+
+tělo-funkce = {deklarace-lokální} složený-příkaz
+            | 'forward'
+
+složený-příkaz = 'begin' příkaz {';' příkaz} 'end'
+
+příkaz = identifikátor-proměnné [ '[' výraz-0 ']' ] ':=' výraz-0
+       | identifikátor-funkce '(' výraz-0 {',' výraz-0} ')'
+       | 'if' výraz-0 'then' příkaz ['else' příkaz]
+       | 'while' výraz-0 'do' příkaz
+       | 'for' identifikátor-proměnné ':=' výraz-0 ('to' | 'downto') výraz-0 'do' příkaz
+       | 'exit'
+       | 'readln' '(' identifikátor-proměnné [ '[' výraz-0 ']' ] ')'
+       | 'write' '(' řetězec ')'
+       | 'writeln' '(' výraz-0 ')'
+       | složený-příkaz
+       | 'eps'
+
+výraz-0 = výraz-1 {'or' výraz-1}
+
+výraz-1 = výraz-2 {'and' výraz-2}
+
+výraz-2 = výraz-3 [('=' | '<>' | '<' | '>' | '<=' | '>=') výraz-3]
+
+výraz-3 = ['-'] výraz-4 {('+' | '-') výraz-4}
+
+výraz-4 = výraz-5 {('*' | 'div' | 'mod') výraz-5}
+
+výraz-5 = identifikátor-proměnné
+        | identifikátor-konstanty
+        | identifikátor-funkce '(' výraz-0 {',' výraz-0} ')'
+        | číslo
+        | '(' výraz-0 ')'
+
+identifikátor-typu = 'array' '[' ['-'] číslo '..' ['-'] číslo ']' 'of' identifikátor-typu
+                   | 'integer'
+
+identifikátor-proměnné = identifikátor
+
+identifikátor-konstanty = identifikátor
+
+identifikátor-funkce = identifikátor
+
+######################
+# Lexikální elementy #
+######################
+lexikální-element = identifikátor | číslo | řetězec | spec-symbol
+
+spec-symbol = '+' | '-' | '*' | '=' | '<>' | '<' | '>' | '<=' | '>='
+            | '(' | ')' | '[' | ']' | '.' | '..' | ',' | ';' | ':' | ':='
+            | klíčové-slovo
+
+klíčové-slovo = 'var' | 'const' | 'mod' | 'div' | 'program' | 'function' | 'procedure' | 'forward'
+              | 'integer' | 'array' | 'of'
+              | 'begin' | 'end' | 'if' | 'then' | 'else' | 'while' | 'do'
+
+identifikátor = písmeno {písmeno | číslice}
+
+číslo = číslice-10 {číslice-10}
+      | '$' číslice-16 {číslice-16}
+      | '&' čislice-8 {číslice-8}
+
+řetězec = '\'' [^']* '\''
+
+písmeno = 'A' | 'B' | ... | 'Z' | 'a' | 'b' | ... | 'z' | '_'
+
+číslice-8 = '0' | '1' | ... | '7'
+
+číslice-10 = číslice-8 | '8' | '9'
+
+číslice-16 = číslice-10 | 'a' | ... | 'f' | 'A' | ... | 'F'

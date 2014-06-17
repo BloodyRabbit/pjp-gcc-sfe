@@ -49,17 +49,17 @@ struct GTY(()) lang_identifier {
 };
 
 union GTY((desc("TREE_CODE(&%h.node)"))) lang_tree_node {
-        union GTY((tag ("1"))) tree_node node;
+	union GTY((tag ("1"))) tree_node node;
 };
 
 struct GTY(()) lang_type {
-  char dummy; 
+  char dummy;
 };
 
 /* Language-specific declaration information.  */
 
 struct GTY(()) lang_decl {
-  char dummy; 
+  char dummy;
 };
 
 struct GTY(()) language_function {
@@ -83,7 +83,7 @@ bool sfe_handle_option (size_t scode, const char *arg,
 		   location_t loc ATTRIBUTE_UNUSED,
 		   const struct cl_option_handlers *handlers ATTRIBUTE_UNUSED) {
   enum opt_code code = (enum opt_code) scode;
-  
+
   printf("Option: %s\n", arg); //zde by se měly řešit argumenty. Viz gcc/c-family/c-opts.c
 
   return true;
@@ -91,7 +91,7 @@ bool sfe_handle_option (size_t scode, const char *arg,
 
 /* The language hooks gets called whenever all options and arguments are
  * parsed/read in the by options sub-component. This might be used for
- * further validation checks 
+ * further validation checks
  *
  * If this function returns NOT 0, the middle-end/back-end of GCC WON'T
  * be called (this is for example used to emit pre-processing code only in
@@ -99,11 +99,11 @@ bool sfe_handle_option (size_t scode, const char *arg,
  */
 bool sfe_post_options (const char **) {
   flag_excess_precision_cmdline = EXCESS_PRECISION_FAST;
-  
+
   return 0;
 }
 
-/* This language hook gets called in decode_options to determine the front-end language mask. 
+/* This language hook gets called in decode_options to determine the front-end language mask.
  * It should return the corresponding CL_*, in this case CL_sfe.
  */
 unsigned int sfe_option_lang_mask(void) {
@@ -133,13 +133,13 @@ void tree_dump_original (tree fndecl) {
 
       if (local_dump_flags & TDF_RAW) dump_node (DECL_SAVED_TREE (fndecl), TDF_SLIM | local_dump_flags, dump_orig);
       else {
-        struct function fn;
-        fn.decl = fndecl;
-        fn.curr_properties = 0;
-        fn.cfg = NULL;
-        DECL_STRUCT_FUNCTION(fndecl) = &fn;
-        dump_function_to_file(fndecl, dump_orig, 0);
-        DECL_STRUCT_FUNCTION(fndecl) = NULL;
+	struct function fn;
+	fn.decl = fndecl;
+	fn.curr_properties = 0;
+	fn.cfg = NULL;
+	DECL_STRUCT_FUNCTION(fndecl) = &fn;
+	dump_function_to_file(fndecl, dump_orig, 0);
+	DECL_STRUCT_FUNCTION(fndecl) = NULL;
       }
       fprintf (dump_orig, "\n");
 
@@ -153,7 +153,7 @@ void tree_dump_original (tree fndecl) {
 
 void register_global_function_declaration(tree functionDecl) {
   vec_safe_push( sfe_global_decls_vec, functionDecl );
-  
+
   tree_dump_original(functionDecl);
 
   gimplify_function_tree(functionDecl);
@@ -165,15 +165,46 @@ void register_global_variable_declaration( tree variable ) {
 }
 
 void sfe_parse_input_files(const char** filenames, unsigned filename_count) {
-  
+  FILE* file;
+  AstNode* ast;
+
   for(unsigned i = 0; i < filename_count; i++) {
     printf("Parsing: %s\n", filenames[i]);
+    if( !(file = fopen( filenames[i], "r" )) )
+    {
+	perror( "fopen" );
+	continue;
+    }
+
+    LexAnalyzer lexan( file );
+    Parser parser( lexan );
+
+    if( !parser.parse( ast ) )
+    {
+	printf( "Failed to parse file `%s'\n", filenames[i] );
+	continue;
+    }
+
+    printf( "File `%s' parsed successfully\n", filenames[i] );
+    ast->print( 1, stdout );
+
+    tree t;
+    SymTable symTable;
+    if( !ast->translate( t, NULL_TREE, symTable ) )
+    {
+	printf( "Failed to translate file `%s'\n", filenames[i] );
+	delete ast;
+	continue;
+    }
+
+    printf( "File `%s' translated successfully\n", filenames[i] );
+    delete ast;
   }
- 
-  if(flag_aaa) printf("Flag aaa is on\n");
-  else printf("Flag aaa is off\n");
-  
-  //execute parser from sfe-lang.c here
+
+  /* if(flag_aaa) printf("Flag aaa is on\n"); */
+  /* else printf("Flag aaa is off\n"); */
+
+  /* execute parser from sfe-lang.c here */
 }
 
 /* parsing language hook */
@@ -188,7 +219,7 @@ void sfe_finish (void) {
 static bool sfe_mark_addressable (tree exp) {
 	gcc_unreachable ();
 }
-  
+
 static tree sfe_type_for_size (unsigned precision, int unsignedp) {
 	gcc_unreachable ();
 }
@@ -207,13 +238,13 @@ static tree getdecls (void) {
 
 /* flush global declarations */
 void sfe_write_globals (void) {
-  
+
   tree *vec = vec_safe_address(sfe_global_decls_vec);
   int len = vec_safe_length(sfe_global_decls_vec);
   wrapup_global_declarations (vec, len);
   emit_debug_global_declarations (vec, len);
   vec_free (sfe_global_decls_vec);
-  
+
   finalize_compilation_unit( );
 }
 
@@ -225,6 +256,6 @@ tree convert (tree type, tree expr) {
 	return NULL;
 }
 
-#include "debug.h" 
+#include "debug.h"
 #include "gt-sfe-sfe1.h"
 #include "gtype-sfe.h"

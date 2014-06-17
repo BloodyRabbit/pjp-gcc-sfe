@@ -1,0 +1,124 @@
+Terminální abeceda T:
+ident number string + - * div mod = <> < <= > >= or and ( ) [ ] . .. , : ; := var const program function procedure forward integer array of begin end if then else while do for to downto exit readln write writeln
+
+Neterminální abeceda N:
+parseProgram parseFuncArgListDecl parseFuncArgListDeclRest parseFuncArgList parseFuncArgListRest parseFuncBody parseDeclsGlob parseDeclsLoc parseDeclGlob parseDeclLoc parseConstRest parseVarRest parseBlock parseBlockRest parseStmt parseStmtIdent parseStmtLvalIdent parseElseBranch parseForDirection parseExpr0 parseExpr0Rest parseExpr1 parseExpr1Rest parseExpr2 parseExpr2Rest parseExpr3 parseExpr3Rest parseExpr4 parseExpr4Rest parseExpr5 parseExpr5Ident parseMinusNumber parseTypeIdent parseIdentListRest
+
+Pravidla P:
+parseProgram -> program ident ; parseDeclsGlob parseBlock .
+
+parseFuncArgListDecl -> ident : parseTypeIdent parseFuncArgListDeclRest
+parseFuncArgListDecl ->
+
+parseFuncArgListDeclRest -> ; ident : parseTypeIdent parseFuncArgListDeclRest
+parseFuncArgListDeclRest ->
+
+parseFuncArgList -> parseExpr0 parseFuncArgListRest
+parseFuncArgList ->
+
+parseFuncArgListRest -> , parseExpr0 parseFuncArgListRest
+parseFuncArgListRest ->
+
+parseFuncBody -> parseDeclsLoc parseBlock
+parseFuncBody -> forward
+
+parseDeclsGlob -> parseDeclGlob parseDeclsGlob
+parseDeclsGlob ->
+
+parseDeclsLoc -> parseDeclLoc parseDeclsLoc
+parseDeclsLoc ->
+
+parseDeclGlob -> function ident ( parseFuncArgListDecl ) : parseTypeIdent ; parseFuncBody ;
+parseDeclGlob -> procedure ident ( parseFuncArgListDecl ) ; parseFuncBody ;
+parseDeclGlob -> parseDeclLoc
+
+parseDeclLoc -> const ident parseIdentListRest = parseMinusNumber ; parseConstRest
+parseDeclLoc -> var ident parseIdentListRest : parseTypeIdent ; parseVarRest
+
+parseConstRest -> ident parseIdentListRest = parseMinusNumber ; parseConstRest
+parseConstRest ->
+
+parseVarRest -> ident parseIdentListRest : parseTypeIdent ; parseVarRest
+parseVarRest ->
+
+parseBlock -> begin parseStmt parseBlockRest end
+
+parseBlockRest -> ; parseStmt parseBlockRest
+parseBlockRest ->
+
+parseStmt -> ident parseStmtIdent
+parseStmt -> if parseExpr0 then parseStmt parseElseBranch
+parseStmt -> while parseExpr0 do parseStmt
+parseStmt -> for ident := parseExpr0 parseForDirection parseExpr0 do parseStmt
+parseStmt -> exit
+parseStmt -> readln ( ident parseStmtLvalIdent )
+parseStmt -> write ( string )
+parseStmt -> writeln ( parseExpr0 )
+parseStmt -> parseBlock
+parseStmt ->
+
+parseStmtIdent -> parseStmtLvalIdent := parseExpr0
+parseStmtIdent -> ( parseFuncArgList )
+
+parseStmtLvalIdent -> [ parseExpr0 ]
+parseStmtLvalIdent ->
+
+parseElseBranch -> else parseStmt
+parseElseBranch ->
+
+parseForDirection -> to
+parseForDirection -> downto
+
+parseExpr0 -> parseExpr1 parseExpr0Rest
+
+parseExpr0Rest -> or parseExpr1 parseExpr0Rest
+parseExpr0Rest ->
+
+parseExpr1 -> parseExpr2 parseExpr1Rest
+
+parseExpr1Rest -> and parseExpr2 parseExpr1Rest
+parseExpr1Rest ->
+
+parseExpr2 -> parseExpr3 parseExpr2Rest
+
+parseExpr2Rest -> = parseExpr3
+parseExpr2Rest -> <> parseExpr3
+parseExpr2Rest -> < parseExpr3
+parseExpr2Rest -> <= parseExpr3
+parseExpr2Rest -> > parseExpr3
+parseExpr2Rest -> >= parseExpr3
+parseExpr2Rest ->
+
+parseExpr3 -> parseExpr4 parseExpr3Rest
+parseExpr3 -> - parseExpr4 parseExpr3Rest
+
+parseExpr3Rest -> + parseExpr4 parseExpr3Rest
+parseExpr3Rest -> - parseExpr4 parseExpr3Rest
+parseExpr3Rest ->
+
+parseExpr4 -> parseExpr5 parseExpr4Rest
+
+parseExpr4Rest -> * parseExpr5 parseExpr4Rest
+parseExpr4Rest -> div parseExpr5 parseExpr4Rest
+parseExpr4Rest -> mod parseExpr5 parseExpr4Rest
+parseExpr4Rest ->
+
+parseExpr5 -> ident parseExpr5Ident
+parseExpr5 -> number
+parseExpr5 -> ( parseExpr0 )
+
+parseExpr5Ident -> ( parseFuncArgList )
+parseExpr5Ident -> [ parseExpr0 ]
+parseExpr5Ident ->
+
+parseMinusNumber -> number
+parseMinusNumber -> - number
+
+parseTypeIdent -> integer
+parseTypeIdent -> array [ parseMinusNumber .. parseMinusNumber ] of parseTypeIdent
+
+parseIdentListRest -> , ident parseIdentListRest
+parseIdentListRest ->
+
+Počáteční symbol S:
+parseProgram

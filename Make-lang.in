@@ -76,14 +76,14 @@ sfe/ast/%.o: sfe/ast/%.cpp $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
   $(FLAGS_H) toplev.h $(GGC_H) $(TREE_H) $(DIAGNOSTIC_H) \
   input.h options.h opts.h insn-modes.h \
   | sfe/ast/.deps sfe/ast/decl/.deps sfe/ast/expr/.deps sfe/ast/stmt/.deps
-	$(COMPILE) $(SFEINCLUDES) $<
+	$(COMPILE) $(SFEINCLUDES) -g -gdwarf-2 -O0 $<
 	$(POSTCOMPILE)
 
 sfe/parser/%.o: sfe/parser/%.cpp $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
   $(FLAGS_H) toplev.h $(GGC_H) $(TREE_H) $(DIAGNOSTIC_H) \
   input.h options.h opts.h insn-modes.h \
   | sfe/parser/.deps
-	$(COMPILE) $(SFEINCLUDES) $<
+	$(COMPILE) $(SFEINCLUDES) -g -gdwarf-2 -O0 $<
 	$(POSTCOMPILE)
 
 sfe.srcextra:
