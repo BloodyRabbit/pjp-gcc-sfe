@@ -32,12 +32,7 @@ AstIntTypeNode::translate(
     SymTable&
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = integer_type_node;
-#endif /* !NO_GCC */
-
     return true;
 }
 
@@ -88,9 +83,6 @@ AstArrTypeNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree elemType;
     if( !mElemType->translate( elemType, ctx, symTable ) )
         return false;
@@ -99,7 +91,6 @@ AstArrTypeNode::translate(
         elemType,
         build_index_type(
             size_int( mEnd - mBegin + 1 ) ) );
-#endif /* !NO_GCC */
 
     return true;
 }

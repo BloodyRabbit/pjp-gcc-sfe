@@ -10,6 +10,20 @@
 
 #include "sfe-lang.h"
 
+void
+register_global_function_declaration(
+    tree functionDecl
+    )
+{
+}
+
+void
+register_global_variable_declaration(
+    tree variable
+    )
+{
+}
+
 int
 main(
     int argc,

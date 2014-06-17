@@ -60,9 +60,6 @@ AstConstDeclNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = symTable.lookupVar(
         mName.c_str() );
 
@@ -90,7 +87,6 @@ AstConstDeclNode::translate(
         symTable.registerVar(
             mName.c_str(), t );
     }
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -142,9 +138,6 @@ AstVarDeclNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = symTable.lookupVar(
         mName.c_str() );
 
@@ -171,7 +164,6 @@ AstVarDeclNode::translate(
         symTable.registerVar(
             mName.c_str(), t );
     }
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -256,9 +248,6 @@ AstFunDeclNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = symTable.lookupFun(
         mName.c_str() );
 
@@ -277,7 +266,7 @@ AstFunDeclNode::translate(
                     param, ctx, symTable ) )
                 return false;
 
-            const tree param_decl =
+            tree param_decl =
                 build_decl(
                     UNKNOWN_LOCATION,
                     PARM_DECL,
@@ -303,13 +292,13 @@ AstFunDeclNode::translate(
                      restype, ctx, symTable ) )
             return false;
 
-        const tree resdecl =
+        tree resdecl =
             build_decl(
                 BUILTINS_LOCATION,
                 RESULT_DECL,
                 NULL_TREE,
                 restype );
-        const tree fntype =
+        tree fntype =
             build_function_type(
                 TREE_TYPE( resdecl ),
                 params );
@@ -365,13 +354,12 @@ AstFunDeclNode::translate(
             symTable.unregisterVar(
                 cur->first.c_str() );
 
-        const tree block =
+        tree block =
             TREE_OPERAND( bind, 2 );
 
         DECL_INITIAL( t ) = block;
         DECL_SAVED_TREE( t ) = bind;
     }
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -450,7 +438,6 @@ AstProgDeclNode::translate(
     SymTable& symTable
     ) const
 {
-#ifndef NO_GCC
     std::vector< AstLocDeclNode* >::const_iterator curv, endv;
     curv = mVarDecls.begin();
     endv = mVarDecls.end();
@@ -474,7 +461,6 @@ AstProgDeclNode::translate(
 
         register_global_function_declaration( fun );
     }
-#endif /* !NO_GCC */
 
     t = NULL_TREE;
     return true;

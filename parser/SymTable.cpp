@@ -82,9 +82,7 @@ SymTable::registerVar(
     }
 
     fprintf( stderr, "Registered variable `%s'\n", name );
-#ifndef NO_GCC
     debug_tree( varDecl );
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -137,9 +135,7 @@ SymTable::registerFun(
     }
 
     fprintf( stderr, "Registered function `%s'\n", name );
-#ifndef NO_GCC
     debug_tree( funDecl );
-#endif /* !NO_GCC */
 
     return true;
 }

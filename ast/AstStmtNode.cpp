@@ -56,10 +56,6 @@ AstBinopStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-    return true;
-#else /* !NO_GCC */
     tree lval, rval;
     if( !mLval->translate( lval, ctx, symTable ) ||
         !mRval->translate( rval, ctx, symTable ) )
@@ -74,7 +70,6 @@ AstBinopStmtNode::translate(
 
     default: return false;
     }
-#endif /* !NO_GCC */
 }
 
 /*************************************************************************/
@@ -186,9 +181,6 @@ AstBlkStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree decls = NULL_TREE;
     tree stmts = alloc_stmt_list();
 
@@ -207,7 +199,7 @@ AstBlkStmtNode::translate(
             &stmts );
     }
 
-    const tree block = build_block(
+    tree block = build_block(
         decls, NULL_TREE, NULL_TREE, NULL_TREE );
     TREE_USED( block ) = true;
 
@@ -241,7 +233,6 @@ AstBlkStmtNode::translate(
             pp = &BLOCK_CHAIN( *pp );
         *pp = block;
     }
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -293,9 +284,6 @@ AstIfStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree cond, thenBlk, elseBlk;
     if( !mCond->translate( cond, ctx, symTable ) ||
         !mThenBlk->translate( thenBlk, ctx, symTable ) )
@@ -309,7 +297,6 @@ AstIfStmtNode::translate(
     t = build3(
         COND_EXPR, void_type_node,
         cond, thenBlk, elseBlk );
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -350,16 +337,11 @@ AstLoopStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree body;
     if( !mBody->translate( body, ctx, symTable ) )
         return false;
 
     t = build1( LOOP_EXPR, void_type_node, body );
-#endif /* !NO_GCC */
-
     return true;
 }
 
@@ -399,16 +381,11 @@ AstBreakStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree cond;
     if( !mCond->translate( cond, ctx, symTable ) )
         return false;
 
     t = build1( EXIT_EXPR, void_type_node, cond );
-#endif /* !NO_GCC */
-
     return true;
 }
 
@@ -431,17 +408,12 @@ AstExitStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
-    const tree resdecl = symTable.getRes();
+    tree resdecl = symTable.getRes();
 
     t = build1(
         RETURN_EXPR,
         void_type_node,
         resdecl );
-#endif /* !NO_GCC */
-
     return true;
 }
 
@@ -496,9 +468,6 @@ AstReadStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree fmt, expr;
     if( !mFmt->translate( fmt, ctx, symTable ) ||
         !mExpr->translate( expr, ctx, symTable ) )
@@ -519,15 +488,15 @@ AstReadStmtNode::translate(
                  TREE_TYPE( expr ),
                  NULL_TREE ) );
 
-    const tree resdecl = build_decl(
+    tree resdecl = build_decl(
         BUILTINS_LOCATION, RESULT_DECL,
         NULL_TREE, integer_type_node );
     DECL_ARTIFICIAL( resdecl ) = true;
     DECL_IGNORED_P( resdecl ) = true;
 
-    const tree fntype = build_function_type(
+    tree fntype = build_function_type(
         TREE_TYPE( resdecl ), params );
-    const tree fndecl = build_decl(
+    tree fndecl = build_decl(
         UNKNOWN_LOCATION, FUNCTION_DECL,
         get_identifier( "scanf" ), fntype );
     DECL_ARGUMENTS( fndecl ) = NULL_TREE;
@@ -542,7 +511,6 @@ AstReadStmtNode::translate(
         UNKNOWN_LOCATION, fndecl, 2, args );
     SET_EXPR_LOCATION( t, UNKNOWN_LOCATION );
     TREE_USED( t ) = true;
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -598,9 +566,6 @@ AstWriteStmtNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     tree fmt, expr;
     if( !mFmt->translate( fmt, ctx, symTable ) ||
         !mExpr->translate( expr, ctx, symTable ) )
@@ -616,15 +581,15 @@ AstWriteStmtNode::translate(
                  TREE_TYPE( expr ),
                  NULL_TREE ) );
 
-    const tree resdecl = build_decl(
+    tree resdecl = build_decl(
         BUILTINS_LOCATION, RESULT_DECL,
         NULL_TREE, integer_type_node );
     DECL_ARTIFICIAL( resdecl ) = true;
     DECL_IGNORED_P( resdecl ) = true;
 
-    const tree fntype = build_function_type(
+    tree fntype = build_function_type(
         TREE_TYPE( resdecl ), params );
-    const tree fndecl = build_decl(
+    tree fndecl = build_decl(
         UNKNOWN_LOCATION, FUNCTION_DECL,
         get_identifier( "printf" ), fntype );
     DECL_ARGUMENTS( fndecl ) = NULL_TREE;
@@ -639,7 +604,6 @@ AstWriteStmtNode::translate(
         UNKNOWN_LOCATION, fndecl, 2, args );
     SET_EXPR_LOCATION( t, UNKNOWN_LOCATION );
     TREE_USED( t ) = true;
-#endif /* !NO_GCC */
 
     return true;
 }

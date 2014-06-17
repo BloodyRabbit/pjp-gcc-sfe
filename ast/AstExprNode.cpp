@@ -38,12 +38,8 @@ AstIntExprNode::translate(
     SymTable&
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = build_int_cst(
         integer_type_node, mVal );
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -78,20 +74,17 @@ AstStrExprNode::translate(
     SymTable&
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
-    const tree idx_type = build_index_type(
+    tree idx_type = build_index_type(
         size_int( mStr.length() ) );
-    const tree elem_type =
+    tree elem_type =
         build_qualified_type(
             unsigned_char_type_node,
             TYPE_QUAL_CONST );
-    const tree string_type =
+    tree string_type =
         build_array_type( elem_type, idx_type );
     TYPE_STRING_FLAG( string_type ) = 1;
 
-    const tree str = build_string(
+    tree str = build_string(
         mStr.length() + 1,
         mStr.c_str() );
     TREE_TYPE( str ) = string_type;
@@ -100,7 +93,6 @@ AstStrExprNode::translate(
         ADDR_EXPR, build_pointer_type(
             TREE_TYPE( str ) ),
         str );
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -135,9 +127,6 @@ AstVarExprNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
     t = symTable.lookupVar(
         mName.c_str() );
 
@@ -147,7 +136,6 @@ AstVarExprNode::translate(
                  mName.c_str() );
         return false;
     }
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -196,10 +184,7 @@ AstArrExprNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
-    const tree array = symTable.lookupVar(
+    tree array = symTable.lookupVar(
         mName.c_str() );
 
     if( NULL_TREE == array )
@@ -217,7 +202,6 @@ AstArrExprNode::translate(
     t = build4(
         ARRAY_REF, TREE_TYPE( TREE_TYPE( array ) ),
         array, index, NULL_TREE, NULL_TREE );
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -278,10 +262,7 @@ AstFunExprNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-#else /* !NO_GCC */
-    const tree fndecl =
+    tree fndecl =
         symTable.lookupFun( mName.c_str() );
 
     if( NULL_TREE == fndecl )
@@ -301,7 +282,6 @@ AstFunExprNode::translate(
         mArgs.size(), argv );
     SET_EXPR_LOCATION( t, UNKNOWN_LOCATION );
     TREE_USED( t ) = true;
-#endif /* !NO_GCC */
 
     return true;
 }
@@ -345,10 +325,6 @@ AstUnopExprNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-    return true;
-#else /* !NO_GCC */
     tree op;
     if( !mOp->translate( op, ctx, symTable ) )
         return false;
@@ -360,7 +336,6 @@ AstUnopExprNode::translate(
 
     default: t = NULL_TREE; return false;
     }
-#endif /* !NO_GCC */
 }
 
 /*************************************************************************/
@@ -420,10 +395,6 @@ AstBinopExprNode::translate(
     SymTable& symTable
     ) const
 {
-#ifdef NO_GCC
-    t = NULL_TREE;
-    return true;
-#else /* !NO_GCC */
     tree left, right;
     if( !mLeft->translate( left, ctx, symTable ) ||
         !mRight->translate( right, ctx, symTable ) )
@@ -449,5 +420,4 @@ AstBinopExprNode::translate(
 
     default: t = NULL_TREE; return false;
     }
-#endif /* !NO_GCC */
 }
