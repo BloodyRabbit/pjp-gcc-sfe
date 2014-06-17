@@ -124,6 +124,21 @@ public:
         unsigned int off,
         FILE* fp
         ) const = 0;
+
+    /**
+     * @brief Translates the AST into equivalent GENERIC tree.
+     *
+     * The results are automatically registered using functions
+     * <code>register_global_variable_declaration</code> and
+     * <code>register_global_function_declaration</code> as
+     * found in <code>sfe-lang.h</code>.
+     *
+     * @retval true
+     *   Translation successful.
+     * @retval false
+     *   Translation failed.
+     */
+    bool translate() const;
     /**
      * @brief Translates the AST into equivalent GENERIC tree.
      *
