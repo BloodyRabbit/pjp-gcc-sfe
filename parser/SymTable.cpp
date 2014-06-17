@@ -58,11 +58,17 @@ SymTable::lookupVar(
     itr = mVarDecls.find( name );
     if( mVarDecls.end() == itr )
     {
+#ifdef DEBUG_SYMTABLE
         fprintf( stderr, "Lookup of variable `%s' failed\n", name );
+#endif /* DEBUG_SYMTABLE */
+
         return NULL_TREE;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Variable `%s' looked up\n", name );
+#endif /* DEBUG_SYMTABLE */
+
     return itr->second;
 }
 
@@ -81,8 +87,10 @@ SymTable::registerVar(
         return false;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Registered variable `%s'\n", name );
     debug_tree( varDecl );
+#endif /* DEBUG_SYMTABLE */
 
     return true;
 }
@@ -98,7 +106,9 @@ SymTable::unregisterVar(
         return false;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Unregistered variable `%s'\n", name );
+#endif /* DEBUG_SYMTABLE */
     return true;
 }
 
@@ -111,11 +121,17 @@ SymTable::lookupFun(
     itr = mFunDecls.find( name );
     if( mFunDecls.end() == itr )
     {
+#ifdef DEBUG_SYMTABLE
         fprintf( stderr, "Lookup of function `%s' failed\n", name );
+#endif /* DEBUG_SYMTABLE */
+
         return NULL_TREE;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Function `%s' looked up\n", name );
+#endif /* DEBUG_SYMTABLE */
+
     return itr->second;
 }
 
@@ -134,8 +150,10 @@ SymTable::registerFun(
         return false;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Registered function `%s'\n", name );
     debug_tree( funDecl );
+#endif /* DEBUG_SYMTABLE */
 
     return true;
 }
@@ -151,6 +169,9 @@ SymTable::unregisterFun(
         return false;
     }
 
+#ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Unregistered function `%s'\n", name );
+#endif /* DEBUG_SYMTABLE */
+
     return true;
 }
