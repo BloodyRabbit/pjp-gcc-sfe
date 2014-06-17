@@ -171,20 +171,18 @@ public:
      */
     AstBlkStmtNode();
     /**
-     * @brief Initializes the node.
-     *
-     * @param[in] decls
-     *   Local variable declarations.
-     */
-    AstBlkStmtNode(
-        const std::vector< AstLocDeclNode* >& decls
-        );
-    /**
      * @brief Frees the contained declarations
      *   and statements.
      */
     ~AstBlkStmtNode();
 
+    /**
+     * @brief Adds a local declaration to the block.
+     *
+     * @param[in] decl
+     *   The declaration to append.
+     */
+    void addDecl( AstLocDeclNode* decl );
     /**
      * @brief Adds a statement to the block.
      *

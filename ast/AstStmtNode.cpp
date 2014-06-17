@@ -40,10 +40,10 @@ AstBinopStmtNode::print(
 
     switch( mToken )
     {
-    case LEXTOK_ASSGN:  fprintf( fp, "%*c:=\n", off, ' ' );
+    case LEXTOK_ASSGN:  fprintf( fp, "%*c:=\n", off, ' ' ); break;
 
-    case LEXTOK_KW_INC: fprintf( fp, "%*c+=\n", off, ' ' );
-    case LEXTOK_KW_DEC: fprintf( fp, "%*c-=\n", off, ' ' );
+    case LEXTOK_KW_INC: fprintf( fp, "%*c+=\n", off, ' ' ); break;
+    case LEXTOK_KW_DEC: fprintf( fp, "%*c-=\n", off, ' ' ); break;
     }
 
     mRval->print( off + 1, fp );
@@ -114,13 +114,6 @@ AstBlkStmtNode::AstBlkStmtNode()
 {
 }
 
-AstBlkStmtNode::AstBlkStmtNode(
-    const std::vector< AstLocDeclNode* >& decls
-    )
-: mDecls( decls )
-{
-}
-
 AstBlkStmtNode::~AstBlkStmtNode()
 {
     std::vector< AstLocDeclNode* >::iterator curd, endd;
@@ -136,6 +129,14 @@ AstBlkStmtNode::~AstBlkStmtNode()
     for(; curs != ends; ++curs )
         delete *curs;
     mStmts.clear();
+}
+
+void
+AstBlkStmtNode::addDecl(
+    AstLocDeclNode* decl
+    )
+{
+    mDecls.push_back( decl );
 }
 
 void

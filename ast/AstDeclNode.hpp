@@ -246,23 +246,39 @@ public:
      *
      * @param[in] name
      *   Name of the function.
-     * @param[in] args
-     *   Names and types of the arguments.
-     * @param[in] resType
-     *   Type of the result.
-     * @param[in] body
-     *   Body of the function.
      */
-    AstFunDeclNode(
-        const char* name,
-        const ArgList& args,
-        AstTypeNode* resType,
-        AstBlkStmtNode* body
-        );
+    AstFunDeclNode( const char* name );
     /**
      * @brief Frees the types and body.
      */
     ~AstFunDeclNode();
+
+    /**
+     * @brief Adds an argument.
+     *
+     * @param[in] name
+     *   Name of the argument.
+     * @param[in] type
+     *   Type of the argument.
+     */
+    void addArg(
+        const char* name,
+        AstTypeNode* type
+        );
+    /**
+     * @brief Sets the result type.
+     *
+     * @param[in] type
+     *   Type of the result.
+     */
+    void setResType( AstTypeNode* type );
+    /**
+     * @brief Sets body of the function.
+     *
+     * @param[in] blk
+     *   Body of the function.
+     */
+    void setBody( AstBlkStmtNode* blk );
 
     /**
      * @brief Prints the node to a file.
@@ -342,16 +358,19 @@ public:
      * @param[in] mainBlk
      *   Main block.
      */
-    AstProgDeclNode(
-        const char* name,
-        const std::vector< AstDeclNode* >& funs,
-        const std::vector< AstLocDeclNode* >& vars,
-        AstBlkStmtNode* mainBlk
-        );
+    AstProgDeclNode( const char* name );
     /**
-     * @brief Frees the contained declarations and statements.
+     * @brief Frees the contained functions.
      */
     ~AstProgDeclNode();
+
+    /**
+     * @brief Adds a function declaration.
+     *
+     * @param[in] fun
+     *   The function declaration to add.
+     */
+    void addFun( AstFunDeclNode* fun );
 
     /**
      * @brief Prints the node to a file.
@@ -402,10 +421,8 @@ public:
         ) const;
 
 protected:
-    /// Global function declarations.
-    std::vector< AstDeclNode* > mFunDecls;
-    /// Global variable declarations.
-    std::vector< AstLocDeclNode* > mVarDecls;
+    /// Function declarations.
+    std::vector< AstFunDeclNode* > mFunDecls;
 };
 
 #endif /* !SFE__AST__AST_DECL_NODE_HPP__INCL__ */

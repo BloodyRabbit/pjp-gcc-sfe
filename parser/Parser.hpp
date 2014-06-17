@@ -102,172 +102,112 @@ protected:
      *   Parsing failed.
      */
     bool parseProgram( AstProgDeclNode*& prog );
-    /**
-     * @brief Parses a function argument list
-     *   declaration.
-     *
-     * @param[in,out] args
-     *   Where to store arguments for the function.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseFuncArgListDecl(
-        AstFunDeclNode::ArgList& args
-        );
-    /**
-     * @brief Parses rest of a function argument
-     *   list declaration.
-     *
-     * @param[in,out] args
-     *   Where to store arguments for the function.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseFuncArgListDeclRest(
-        AstFunDeclNode::ArgList& args
-        );
-    /**
-     * @brief Parses a function argument list.
-     *
-     * @param[in,out] fun
-     *   Where to store arguments for the function.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseFuncArgList( AstFunExprNode*& fun );
-    /**
-     * @brief Parses rest of a function argument list.
-     *
-     * @param[in,out] fun
-     *   Where to store arguments for the function.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseFuncArgListRest( AstFunExprNode*& fun );
-    /**
-     * @brief Parses a function body.
-     *
-     * @param[in,out] blk
-     *   The block to append the statements to.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseFuncBody( AstBlkStmtNode*& blk );
 
     /**
      * @brief Parses global declarations.
      *
-     * @param[out] funs
+     * @param[in] prog
      *   Where to append function declarations.
-     * @param[out] vars
-     *   Where to append variable declarations.
      *
      * @retval true
      *   Parsing successful.
      * @retval false
      *   Parsing failed.
      */
-    bool parseDeclsGlob(
-        std::vector< AstDeclNode* >& funs,
-        std::vector< AstLocDeclNode* >& vars
-        );
+    bool parseDeclsGlob( AstProgDeclNode* prog );
+    /**
+     * @brief Parses a function argument list
+     *   declaration.
+     *
+     * @param[in] fun
+     *   Where to store arguments for the function.
+     *
+     * @retval true
+     *   Parsing successful.
+     * @retval false
+     *   Parsing failed.
+     */
+    bool parseFunDeclArgs( AstFunDeclNode* fun );
+    /**
+     * @brief Parses rest of a function argument
+     *   list declaration.
+     *
+     * @param[in] fun
+     *   Where to store arguments for the function.
+     *
+     * @retval true
+     *   Parsing successful.
+     * @retval false
+     *   Parsing failed.
+     */
+    bool parseFunDeclArgsRest( AstFunDeclNode* fun );
+    /**
+     * @brief Parses a function body.
+     *
+     * @param[in] fun
+     *   Where to store the function body.
+     *
+     * @retval true
+     *   Parsing successful.
+     * @retval false
+     *   Parsing failed.
+     */
+    bool parseFunDeclBody( AstFunDeclNode* fun );
+
     /**
      * @brief Parses local declarations.
      *
-     * @param[in,out] into
-     *   Where to append the declarations.
+     * @param[in] blk
+     *   Where to append the local declarations.
      *
      * @retval true
      *   Parsing successful.
      * @retval false
      *   Parsing failed.
      */
-    bool parseDeclsLoc( std::vector< AstLocDeclNode* >& into );
-    /**
-     * @brief Parses a single global declaration.
-     *
-     * @param[out] funs
-     *   Where to append function declarations.
-     * @param[out] vars
-     *   Where to append variable declarations.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseDeclGlob(
-        std::vector< AstDeclNode* >& funs,
-        std::vector< AstLocDeclNode* >& vars
-        );
-    /**
-     * @brief Parses a single local declaration.
-     *
-     * @param[in,out] into
-     *   Where to append the declarations.
-     *
-     * @retval true
-     *   Parsing successful.
-     * @retval false
-     *   Parsing failed.
-     */
-    bool parseDeclLoc( std::vector< AstLocDeclNode* >& into );
+    bool parseDeclsLoc( AstBlkStmtNode* blk );
     /**
      * @brief Parses rest of the const section.
      *
-     * @param[in,out] into
-     *   Where to append the declarations.
+     * @param[in] blk
+     *   Where to append the local declarations.
      *
      * @retval true
      *   Parsing successful.
      * @retval false
      *   Parsing failed.
      */
-    bool parseConstRest( std::vector< AstLocDeclNode* >& into );
+    bool parseConstDeclRest( AstBlkStmtNode* blk );
     /**
      * @brief Parses rest of the var section.
      *
-     * @param[in,out] into
-     *   Where to append the declarations.
+     * @param[in] blk
+     *   Where to append the local declarations.
      *
      * @retval true
      *   Parsing successful.
      * @retval false
      *   Parsing failed.
      */
-    bool parseVarRest( std::vector< AstLocDeclNode* >& into );
+    bool parseVarDeclRest( AstBlkStmtNode* blk );
 
     /**
      * @brief Parses a block.
      *
-     * @param[in,out] blk
-     *   The block to append the statements to.
+     * @param[in] blk
+     *   The block to append the declarations
+     *   and statements to.
      *
      * @retval true
      *   Parsing successful.
      * @retval false
      *   Parsing failed.
      */
-    bool parseBlock( AstBlkStmtNode*& blk );
+    bool parseBlock( AstBlkStmtNode* blk );
     /**
      * @brief Parses rest of a block.
      *
-     * @param[in,out] blk
+     * @param[in] blk
      *   The block to append the statements to.
      *
      * @retval true
@@ -275,11 +215,11 @@ protected:
      * @retval false
      *   Parsing failed.
      */
-    bool parseBlockRest( AstBlkStmtNode*& blk );
+    bool parseBlockRest( AstBlkStmtNode* blk );
     /**
      * @brief Parses a statement.
      *
-     * @param[in,out] blk
+     * @param[in] blk
      *   The block to append the statement to.
      *
      * @retval true
@@ -287,14 +227,14 @@ protected:
      * @retval false
      *   Parsing failed.
      */
-    bool parseStmt( AstBlkStmtNode*& blk );
+    bool parseStmt( AstBlkStmtNode* blk );
     /**
      * @brief Parses a statement starting with
      *   an identifier.
      *
      * @param[in] name
      *   The encountered identifier.
-     * @param[in,out] blk
+     * @param[in] blk
      *   The block to append the statement to.
      *
      * @retval true
@@ -304,7 +244,7 @@ protected:
      */
     bool parseStmtIdent(
         const std::string& name,
-        AstBlkStmtNode*& blk
+        AstBlkStmtNode* blk
         );
     /**
      * @brief Parses an lval statement starting with
@@ -499,6 +439,30 @@ protected:
         const std::string& name,
         AstExprNode*& expr
         );
+    /**
+     * @brief Parses a function argument list.
+     *
+     * @param[in] fun
+     *   Where to store arguments for the function.
+     *
+     * @retval true
+     *   Parsing successful.
+     * @retval false
+     *   Parsing failed.
+     */
+    bool parseFunExprArgs( AstFunExprNode* fun );
+    /**
+     * @brief Parses rest of a function argument list.
+     *
+     * @param[in] fun
+     *   Where to store arguments for the function.
+     *
+     * @retval true
+     *   Parsing successful.
+     * @retval false
+     *   Parsing failed.
+     */
+    bool parseFunExprArgsRest( AstFunExprNode* fun );
 
     /**
      * @brief Parses a number with optional minus.

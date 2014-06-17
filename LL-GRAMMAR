@@ -2,46 +2,35 @@ Terminální abeceda T:
 ident number string + - * div mod = <> < <= > >= or and ( ) [ ] . .. , : ; := var const program function procedure forward integer array of begin end if then else while do for to downto exit readln write writeln
 
 Neterminální abeceda N:
-parseProgram parseFuncArgListDecl parseFuncArgListDeclRest parseFuncArgList parseFuncArgListRest parseFuncBody parseDeclsGlob parseDeclsLoc parseDeclGlob parseDeclLoc parseConstRest parseVarRest parseBlock parseBlockRest parseStmt parseStmtIdent parseStmtLvalIdent parseElseBranch parseForDirection parseExpr0 parseExpr0Rest parseExpr1 parseExpr1Rest parseExpr2 parseExpr2Rest parseExpr3 parseExpr3Rest parseExpr4 parseExpr4Rest parseExpr5 parseExpr5Ident parseMinusNumber parseTypeIdent parseIdentListRest
+parseProgram parseFunDeclArgs parseFunDeclArgsRest parseFunExprArgs parseFunExprArgsRest parseFunDeclBody parseDeclsGlob parseDeclsLoc parseDeclGlob parseDeclLoc parseConstDeclRest parseVarDeclRest parseBlock parseBlockRest parseStmt parseStmtIdent parseStmtLvalIdent parseElseBranch parseForDirection parseExpr0 parseExpr0Rest parseExpr1 parseExpr1Rest parseExpr2 parseExpr2Rest parseExpr3 parseExpr3Rest parseExpr4 parseExpr4Rest parseExpr5 parseExpr5Ident parseMinusNumber parseTypeIdent parseIdentListRest
 
 Pravidla P:
 parseProgram -> program ident ; parseDeclsGlob parseBlock .
 
-parseFuncArgListDecl -> ident : parseTypeIdent parseFuncArgListDeclRest
-parseFuncArgListDecl ->
-
-parseFuncArgListDeclRest -> ; ident : parseTypeIdent parseFuncArgListDeclRest
-parseFuncArgListDeclRest ->
-
-parseFuncArgList -> parseExpr0 parseFuncArgListRest
-parseFuncArgList ->
-
-parseFuncArgListRest -> , parseExpr0 parseFuncArgListRest
-parseFuncArgListRest ->
-
-parseFuncBody -> parseDeclsLoc parseBlock
-parseFuncBody -> forward
-
-parseDeclsGlob -> parseDeclGlob parseDeclsGlob
+parseDeclsGlob -> function ident ( parseFunDeclArgs ) : parseTypeIdent ; parseFunDeclBody ; parseDeclsGlob
+parseDeclsGlob -> procedure ident ( parseFunDeclArgs ) ; parseFunDeclBody ; parseDeclsGlob
 parseDeclsGlob ->
 
-parseDeclsLoc -> parseDeclLoc parseDeclsLoc
+parseFunDeclArgs -> ident : parseTypeIdent parseFunDeclArgsRest
+parseFunDeclArgs ->
+
+parseFunDeclArgsRest -> ; ident : parseTypeIdent parseFunDeclArgsRest
+parseFunDeclArgsRest ->
+
+parseFunDeclBody -> parseBlock
+parseFunDeclBody -> forward
+
+parseDeclsLoc -> const ident parseIdentListRest = parseMinusNumber ; parseConstDeclRest parseDeclsLoc
+parseDeclsLoc -> var ident parseIdentListRest : parseTypeIdent ; parseVarDeclRest parseDeclsLoc
 parseDeclsLoc ->
 
-parseDeclGlob -> function ident ( parseFuncArgListDecl ) : parseTypeIdent ; parseFuncBody ;
-parseDeclGlob -> procedure ident ( parseFuncArgListDecl ) ; parseFuncBody ;
-parseDeclGlob -> parseDeclLoc
+parseConstDeclRest -> ident parseIdentListRest = parseMinusNumber ; parseConstDeclRest
+parseConstDeclRest ->
 
-parseDeclLoc -> const ident parseIdentListRest = parseMinusNumber ; parseConstRest
-parseDeclLoc -> var ident parseIdentListRest : parseTypeIdent ; parseVarRest
+parseVarDeclRest -> ident parseIdentListRest : parseTypeIdent ; parseVarDeclRest
+parseVarDeclRest ->
 
-parseConstRest -> ident parseIdentListRest = parseMinusNumber ; parseConstRest
-parseConstRest ->
-
-parseVarRest -> ident parseIdentListRest : parseTypeIdent ; parseVarRest
-parseVarRest ->
-
-parseBlock -> begin parseStmt parseBlockRest end
+parseBlock -> parseDeclsLoc begin parseStmt parseBlockRest end
 
 parseBlockRest -> ; parseStmt parseBlockRest
 parseBlockRest ->
@@ -51,14 +40,16 @@ parseStmt -> if parseExpr0 then parseStmt parseElseBranch
 parseStmt -> while parseExpr0 do parseStmt
 parseStmt -> for ident := parseExpr0 parseForDirection parseExpr0 do parseStmt
 parseStmt -> exit
+parseStmt -> parseBlock
+parseStmt -> inc ( ident parseStmtLvalIdent )
+parseStmt -> dec ( ident parseStmtLvalIdent )
 parseStmt -> readln ( ident parseStmtLvalIdent )
 parseStmt -> write ( string )
 parseStmt -> writeln ( parseExpr0 )
-parseStmt -> parseBlock
 parseStmt ->
 
 parseStmtIdent -> parseStmtLvalIdent := parseExpr0
-parseStmtIdent -> ( parseFuncArgList )
+parseStmtIdent -> ( parseFunExprArgs )
 
 parseStmtLvalIdent -> [ parseExpr0 ]
 parseStmtLvalIdent ->
@@ -107,9 +98,15 @@ parseExpr5 -> ident parseExpr5Ident
 parseExpr5 -> number
 parseExpr5 -> ( parseExpr0 )
 
-parseExpr5Ident -> ( parseFuncArgList )
+parseExpr5Ident -> ( parseFunExprArgs )
 parseExpr5Ident -> [ parseExpr0 ]
 parseExpr5Ident ->
+
+parseFunExprArgs -> parseExpr0 parseFunExprArgsRest
+parseFunExprArgs ->
+
+parseFunExprArgsRest -> , parseExpr0 parseFunExprArgsRest
+parseFunExprArgsRest ->
 
 parseMinusNumber -> number
 parseMinusNumber -> - number

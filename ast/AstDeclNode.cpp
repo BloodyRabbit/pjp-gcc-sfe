@@ -181,15 +181,11 @@ AstVarDeclNode::unregister(
 /* AstFunDeclNode                                                        */
 /*************************************************************************/
 AstFunDeclNode::AstFunDeclNode(
-    const char* name,
-    const ArgList& args,
-    AstTypeNode* resType,
-    AstBlkStmtNode* body
+    const char* name
     )
 : AstDeclNode( name ),
-  mArgs( args ),
-  mResType( resType ),
-  mBody( body )
+  mResType( NULL ),
+  mBody( NULL )
 {
 }
 
@@ -204,6 +200,34 @@ AstFunDeclNode::~AstFunDeclNode()
 
     delete mResType;
     delete mBody;
+}
+
+void
+AstFunDeclNode::addArg(
+    const char* name,
+    AstTypeNode* type
+    )
+{
+    mArgs.push_back(
+        Arg( name, type ) );
+}
+
+void
+AstFunDeclNode::setResType(
+    AstTypeNode* type
+    )
+{
+    delete mResType;
+    mResType = type;
+}
+
+void
+AstFunDeclNode::setBody(
+    AstBlkStmtNode* blk
+    )
+{
+    delete mBody;
+    mBody = blk;
 }
 
 void
@@ -377,37 +401,28 @@ AstFunDeclNode::unregister(
 /* AstProgDeclNode                                                       */
 /*************************************************************************/
 AstProgDeclNode::AstProgDeclNode(
-    const char* name,
-    const std::vector< AstDeclNode* >& funs,
-    const std::vector< AstLocDeclNode* >& vars,
-    AstBlkStmtNode* mainBlk
+    const char* name
     )
-: AstDeclNode( name ),
-  mFunDecls( funs ),
-  mVarDecls( vars )
+: AstDeclNode( name )
 {
-    mFunDecls.push_back(
-        new AstFunDeclNode(
-            "main",
-            std::vector< std::pair< std::string, AstTypeNode* > >(),
-            new AstIntTypeNode(), mainBlk ) );
 }
 
 AstProgDeclNode::~AstProgDeclNode()
 {
-    std::vector< AstDeclNode* >::iterator curf, endf;
+    std::vector< AstFunDeclNode* >::iterator curf, endf;
     curf = mFunDecls.begin();
     endf = mFunDecls.end();
     for(; curf != endf; ++curf )
         delete *curf;
     mFunDecls.clear();
+}
 
-    std::vector< AstLocDeclNode* >::iterator curv, endv;
-    curv = mVarDecls.begin();
-    endv = mVarDecls.end();
-    for(; curv != endv; ++curv )
-        delete *curv;
-    mVarDecls.clear();
+void
+AstProgDeclNode::addFun(
+    AstFunDeclNode* fun
+    )
+{
+    mFunDecls.push_back( fun );
 }
 
 void
@@ -418,13 +433,7 @@ AstProgDeclNode::print(
 {
     fprintf( fp, "%*cprogram %s\n", off, ' ', mName.c_str() );
 
-    std::vector< AstLocDeclNode* >::const_iterator curv, endv;
-    curv = mVarDecls.begin();
-    endv = mVarDecls.end();
-    for(; curv != endv; ++curv )
-        (*curv)->print( off, fp );
-
-    std::vector< AstDeclNode* >::const_iterator curf, endf;
+    std::vector< AstFunDeclNode* >::const_iterator curf, endf;
     curf = mFunDecls.begin();
     endf = mFunDecls.end();
     for(; curf != endf; ++curf )
@@ -438,19 +447,7 @@ AstProgDeclNode::translate(
     SymTable& symTable
     ) const
 {
-    std::vector< AstLocDeclNode* >::const_iterator curv, endv;
-    curv = mVarDecls.begin();
-    endv = mVarDecls.end();
-    for(; curv != endv; ++curv )
-    {
-        tree var;
-        if( !(*curv)->translate( var, ctx, symTable ) )
-            return false;
-
-        register_global_variable_declaration( var );
-    }
-
-    std::vector< AstDeclNode* >::const_iterator curf, endf;
+    std::vector< AstFunDeclNode* >::const_iterator curf, endf;
     curf = mFunDecls.begin();
     endf = mFunDecls.end();
     for(; curf != endf; ++curf )

@@ -76,10 +76,8 @@ Parser::parseProgram(
     AstProgDeclNode*& prog
     )
 {
-    std::string name;
+    AstFunDeclNode* fun;
     AstBlkStmtNode* blk;
-    std::vector< AstDeclNode* > funs;
-    std::vector< AstLocDeclNode* > vars;
 
 #ifdef DEBUG_PARSER
     fprintf( stderr, "parseProgram\n" );
@@ -91,22 +89,23 @@ Parser::parseProgram(
         if( !match( LEXTOK_KW_PROG ) )
             return false;
 
-        name = peekStr();
+        prog = new AstProgDeclNode(
+            peekStr().c_str() );
+        blk = new AstBlkStmtNode();
 
         if( !match( LEXTOK_IDENT ) ||
             !match( LEXTOK_SCOL ) ||
-            !parseDeclsGlob( funs, vars ) )
-            return false;
-
-        blk = new AstBlkStmtNode();
-
-        if( !parseBlock( blk ) ||
+            !parseDeclsGlob( prog ) ||
+            !parseBlock( blk ) ||
             !match( LEXTOK_DOT ) ||
             !match( LEXTOK_EOI ) )
             return false;
 
-        prog = new AstProgDeclNode(
-            name.c_str(), funs, vars, blk );
+        fun = new AstFunDeclNode( "main" );
+        fun->setResType( new AstIntTypeNode() );
+        fun->setBody( blk );
+
+        prog->addFun( fun );
         return true;
 
     default:
@@ -115,15 +114,83 @@ Parser::parseProgram(
 }
 
 bool
-Parser::parseFuncArgListDecl(
-    AstFunDeclNode::ArgList& args
+Parser::parseDeclsGlob(
+    AstProgDeclNode* prog
+    )
+{
+    AstFunDeclNode* fun;
+    AstTypeNode* resType;
+
+#ifdef DEBUG_PARSER
+    fprintf( stderr, "parseDeclsGlob\n" );
+#endif /* DEBUG_PARSER */
+
+    switch( peek() )
+    {
+    case LEXTOK_KW_FUNC:
+        if( !match( LEXTOK_KW_FUNC ) )
+            return false;
+
+        fun = new AstFunDeclNode(
+            peekStr().c_str() );
+
+        if( !match( LEXTOK_IDENT ) ||
+            !match( LEXTOK_LPAR ) ||
+            !parseFunDeclArgs( fun ) ||
+            !match( LEXTOK_RPAR ) ||
+            !match( LEXTOK_COL ) ||
+            !parseTypeIdent( resType ) ||
+            !match( LEXTOK_SCOL ) ||
+            !parseFunDeclBody( fun ) ||
+            !match( LEXTOK_SCOL ) )
+            return false;
+
+        fun->setResType( resType );
+        prog->addFun( fun );
+
+        return parseDeclsGlob( prog );
+
+    case LEXTOK_KW_PROC:
+        if( !match( LEXTOK_KW_PROC ) )
+            return false;
+
+        fun = new AstFunDeclNode(
+            peekStr().c_str() );
+
+        if( !match( LEXTOK_IDENT ) ||
+            !match( LEXTOK_LPAR ) ||
+            !parseFunDeclArgs( fun ) ||
+            !match( LEXTOK_RPAR ) ||
+            !match( LEXTOK_SCOL ) ||
+            !parseFunDeclBody( fun ) ||
+            !match( LEXTOK_SCOL ) )
+            return false;
+
+        fun->setResType( NULL );
+        prog->addFun( fun );
+
+        return parseDeclsGlob( prog );
+
+    case LEXTOK_KW_CONST:
+    case LEXTOK_KW_VAR:
+    case LEXTOK_KW_BEGIN:
+        return true;
+
+    default:
+        return error();
+    }
+}
+
+bool
+Parser::parseFunDeclArgs(
+    AstFunDeclNode* fun
     )
 {
     std::string name;
     AstTypeNode* type;
 
 #ifdef DEBUG_PARSER
-    fprintf( stderr, "parseFuncArgListDecl\n" );
+    fprintf( stderr, "parseFunDeclArgs\n" );
 #endif /* DEBUG_PARSER */
 
     switch( peek() )
@@ -136,9 +203,8 @@ Parser::parseFuncArgListDecl(
             !parseTypeIdent( type ) )
             return false;
 
-        args.push_back(
-            AstFunDeclNode::Arg( name, type ) );
-        return parseFuncArgListDeclRest( args );
+        fun->addArg( name.c_str(), type );
+        return parseFunDeclArgsRest( fun );
 
     case LEXTOK_RPAR:
         return true;
@@ -149,15 +215,15 @@ Parser::parseFuncArgListDecl(
 }
 
 bool
-Parser::parseFuncArgListDeclRest(
-    AstFunDeclNode::ArgList& args
+Parser::parseFunDeclArgsRest(
+    AstFunDeclNode* fun
     )
 {
     std::string name;
     AstTypeNode* type;
 
 #ifdef DEBUG_PARSER
-    fprintf( stderr, "parseFuncArgListDeclRest\n" );
+    fprintf( stderr, "parseFunDeclArgsRest\n" );
 #endif /* DEBUG_PARSER */
 
     switch( peek() )
@@ -172,9 +238,8 @@ Parser::parseFuncArgListDeclRest(
             !parseTypeIdent( type ) )
             return false;
 
-        args.push_back(
-            AstFunDeclNode::Arg( name, type ) );
-        return parseFuncArgListDeclRest( args );
+        fun->addArg( name.c_str(), type );
+        return parseFunDeclArgsRest( fun );
 
     case LEXTOK_RPAR:
         return true;
@@ -185,74 +250,14 @@ Parser::parseFuncArgListDeclRest(
 }
 
 bool
-Parser::parseFuncArgList(
-    AstFunExprNode*& fun
+Parser::parseFunDeclBody(
+    AstFunDeclNode* fun
     )
 {
-    AstExprNode* arg;
+    AstBlkStmtNode* blk;
 
 #ifdef DEBUG_PARSER
-    fprintf( stderr, "parseFuncArgList\n" );
-#endif /* DEBUG_PARSER */
-
-    switch( peek() )
-    {
-    case LEXTOK_IDENT:
-    case LEXTOK_NUMBER:
-    case LEXTOK_MINUS:
-    case LEXTOK_LPAR:
-        if( !parseExpr0( arg ) )
-            return false;
-
-        fun->addArg( arg );
-        return parseFuncArgListRest( fun );
-
-    case LEXTOK_RPAR:
-        return true;
-
-    default:
-        return error();
-    }
-}
-
-bool
-Parser::parseFuncArgListRest(
-    AstFunExprNode*& fun
-    )
-{
-    AstExprNode* arg;
-
-#ifdef DEBUG_PARSER
-    fprintf( stderr, "parseFuncArgListRest\n" );
-#endif /* DEBUG_PARSER */
-
-    switch( peek() )
-    {
-    case LEXTOK_COMMA:
-        if( !match( LEXTOK_COMMA ) ||
-            !parseExpr0( arg ) )
-            return false;
-
-        fun->addArg( arg );
-        return parseFuncArgListRest( fun );
-
-    case LEXTOK_RPAR:
-        return true;
-
-    default:
-        return error();
-    }
-}
-
-bool
-Parser::parseFuncBody(
-    AstBlkStmtNode*& blk
-    )
-{
-    std::vector< AstLocDeclNode* > vars;
-
-#ifdef DEBUG_PARSER
-    fprintf( stderr, "parseFuncBody\n" );
+    fprintf( stderr, "parseFunDeclBody\n" );
 #endif /* DEBUG_PARSER */
 
     switch( peek() )
@@ -260,14 +265,14 @@ Parser::parseFuncBody(
     case LEXTOK_KW_CONST:
     case LEXTOK_KW_VAR:
     case LEXTOK_KW_BEGIN:
-        if( !parseDeclsLoc( vars ) )
+        blk = new AstBlkStmtNode();
+        if( !parseBlock( blk ) )
             return false;
 
-        blk = new AstBlkStmtNode( vars );
-        return parseBlock( blk );
+        fun->setBody( blk );
+        return true;
 
     case LEXTOK_KW_FWD:
-        blk = NULL;
         return match( LEXTOK_KW_FWD );
 
     default:
@@ -276,129 +281,8 @@ Parser::parseFuncBody(
 }
 
 bool
-Parser::parseDeclsGlob(
-    std::vector< AstDeclNode* >& funs,
-    std::vector< AstLocDeclNode* >& vars
-    )
-{
-#ifdef DEBUG_PARSER
-    fprintf( stderr, "parseDeclsGlob\n" );
-#endif /* DEBUG_PARSER */
-
-    switch( peek() )
-    {
-    case LEXTOK_KW_CONST:
-    case LEXTOK_KW_VAR:
-    case LEXTOK_KW_FUNC:
-    case LEXTOK_KW_PROC:
-        return parseDeclGlob( funs, vars )
-            && parseDeclsGlob( funs, vars );
-
-    case LEXTOK_KW_BEGIN:
-        return true;
-
-    default:
-        return error();
-    }
-}
-
-bool
 Parser::parseDeclsLoc(
-    std::vector< AstLocDeclNode* >& into
-    )
-{
-#ifdef DEBUG_PARSER
-    fprintf( stderr, "parseDeclsLoc\n" );
-#endif /* DEBUG_PARSER */
-
-    switch( peek() )
-    {
-    case LEXTOK_KW_CONST:
-    case LEXTOK_KW_VAR:
-        return parseDeclLoc( into )
-            && parseDeclsLoc( into );
-
-    case LEXTOK_KW_BEGIN:
-        return true;
-
-    default:
-        return error();
-    }
-}
-
-bool
-Parser::parseDeclGlob(
-    std::vector< AstDeclNode* >& funs,
-    std::vector< AstLocDeclNode* >& vars
-    )
-{
-    std::string name;
-    AstFunDeclNode::ArgList args;
-    AstTypeNode* resType;
-    AstBlkStmtNode* body;
-
-#ifdef DEBUG_PARSER
-    fprintf( stderr, "parseDeclGlob\n" );
-#endif /* DEBUG_PARSER */
-
-    switch( peek() )
-    {
-    case LEXTOK_KW_FUNC:
-        if( !match( LEXTOK_KW_FUNC ) )
-            return false;
-
-        name = peekStr();
-
-        if( !match( LEXTOK_IDENT ) ||
-            !match( LEXTOK_LPAR ) ||
-            !parseFuncArgListDecl( args ) ||
-            !match( LEXTOK_RPAR ) ||
-            !match( LEXTOK_COL ) ||
-            !parseTypeIdent( resType ) ||
-            !match( LEXTOK_SCOL ) ||
-            !parseFuncBody( body ) ||
-            !match( LEXTOK_SCOL ) )
-            return false;
-
-        funs.push_back(
-            new AstFunDeclNode(
-                name.c_str(), args,
-                resType, body ) );
-        return true;
-
-    case LEXTOK_KW_PROC:
-        if( !match( LEXTOK_KW_PROC ) )
-            return false;
-
-        name = peekStr();
-
-        if( !match( LEXTOK_IDENT ) ||
-            !match( LEXTOK_LPAR ) ||
-            !parseFuncArgListDecl( args ) ||
-            !match( LEXTOK_RPAR ) ||
-            !match( LEXTOK_SCOL ) ||
-            !parseFuncBody( body ) ||
-            !match( LEXTOK_SCOL ) )
-            return false;
-
-        funs.push_back(
-            new AstFunDeclNode(
-                name.c_str(), args,
-                NULL, body ) );
-        return true;
-
-    case LEXTOK_KW_CONST:
-    case LEXTOK_KW_VAR:
-        return parseDeclLoc( vars );
-
-    default:
-        return error();
-    }
-}
-
-bool
-Parser::parseDeclLoc(
-    std::vector< AstLocDeclNode* >& into
+    AstBlkStmtNode* blk
     )
 {
     int val;
@@ -407,7 +291,7 @@ Parser::parseDeclLoc(
     std::vector< std::string >::const_iterator cur, end;
 
 #ifdef DEBUG_PARSER
-    fprintf( stderr, "parseDeclLoc\n" );
+    fprintf( stderr, "parseDeclsLoc\n" );
 #endif /* DEBUG_PARSER */
 
     switch( peek() )
@@ -428,11 +312,12 @@ Parser::parseDeclLoc(
         cur = idents.begin();
         end = idents.end();
         for(; cur != end; ++cur )
-            into.push_back(
+            blk->addDecl(
                 new AstConstDeclNode(
                     cur->c_str(), val ) );
 
-        return parseConstRest( into );
+        return parseConstDeclRest( blk )
+            && parseDeclsLoc( blk );
 
     case LEXTOK_KW_VAR:
         if( !match( LEXTOK_KW_VAR ) )
@@ -449,14 +334,22 @@ Parser::parseDeclLoc(
 
         cur = idents.begin();
         end = idents.end();
+
+        blk->addDecl(
+            new AstVarDeclNode(
+                (cur++)->c_str(), type ) );
+
         for(; cur != end; ++cur )
-            into.push_back(
+            blk->addDecl(
                 new AstVarDeclNode(
                     cur->c_str(),
                     type->clone() ) );
 
-        delete type;
-        return parseVarRest( into );
+        return parseVarDeclRest( blk )
+            && parseDeclsLoc( blk );
+
+    case LEXTOK_KW_BEGIN:
+        return true;
 
     default:
         return error();
@@ -464,8 +357,8 @@ Parser::parseDeclLoc(
 }
 
 bool
-Parser::parseConstRest(
-    std::vector< AstLocDeclNode* >& into
+Parser::parseConstDeclRest(
+    AstBlkStmtNode* blk
     )
 {
     int val;
@@ -491,16 +384,14 @@ Parser::parseConstRest(
         cur = idents.begin();
         end = idents.end();
         for(; cur != end; ++cur )
-            into.push_back(
+            blk->addDecl(
                 new AstConstDeclNode(
                     cur->c_str(), val ) );
 
-        return parseConstRest( into );
+        return parseConstDeclRest( blk );
 
     case LEXTOK_KW_CONST:
     case LEXTOK_KW_VAR:
-    case LEXTOK_KW_FUNC:
-    case LEXTOK_KW_PROC:
     case LEXTOK_KW_BEGIN:
         return true;
 
@@ -510,8 +401,8 @@ Parser::parseConstRest(
 }
 
 bool
-Parser::parseVarRest(
-    std::vector< AstLocDeclNode* >& into
+Parser::parseVarDeclRest(
+    AstBlkStmtNode* blk
     )
 {
     AstTypeNode* type;
@@ -519,7 +410,7 @@ Parser::parseVarRest(
     std::vector< std::string >::const_iterator cur, end;
 
 #ifdef DEBUG_PARSER
-    fprintf( stderr, "parseVarRest\n" );
+    fprintf( stderr, "parseVarDeclRest\n" );
 #endif /* DEBUG_PARSER */
 
     switch( peek() )
@@ -536,19 +427,21 @@ Parser::parseVarRest(
 
         cur = idents.begin();
         end = idents.end();
+
+        blk->addDecl(
+            new AstVarDeclNode(
+                (cur++)->c_str(), type ) );
+
         for(; cur != end; ++cur )
-            into.push_back(
+            blk->addDecl(
                 new AstVarDeclNode(
                     cur->c_str(),
                     type->clone() ) );
 
-        delete type;
-        return parseVarRest( into );
+        return parseVarDeclRest( blk );
 
     case LEXTOK_KW_CONST:
     case LEXTOK_KW_VAR:
-    case LEXTOK_KW_FUNC:
-    case LEXTOK_KW_PROC:
     case LEXTOK_KW_BEGIN:
         return true;
 
@@ -559,7 +452,7 @@ Parser::parseVarRest(
 
 bool
 Parser::parseBlock(
-    AstBlkStmtNode*& blk
+    AstBlkStmtNode* blk
     )
 {
 #ifdef DEBUG_PARSER
@@ -568,8 +461,11 @@ Parser::parseBlock(
 
     switch( peek() )
     {
+    case LEXTOK_KW_CONST:
+    case LEXTOK_KW_VAR:
     case LEXTOK_KW_BEGIN:
-        return match( LEXTOK_KW_BEGIN )
+        return parseDeclsLoc( blk )
+            && match( LEXTOK_KW_BEGIN )
             && parseStmt( blk )
             && parseBlockRest( blk )
             && match( LEXTOK_KW_END );
@@ -581,7 +477,7 @@ Parser::parseBlock(
 
 bool
 Parser::parseBlockRest(
-    AstBlkStmtNode*& blk
+    AstBlkStmtNode* blk
     )
 {
 #ifdef DEBUG_PARSER
@@ -605,7 +501,7 @@ Parser::parseBlockRest(
 
 bool
 Parser::parseStmt(
-    AstBlkStmtNode*& blk
+    AstBlkStmtNode* blk
     )
 {
     bool inc;
@@ -714,6 +610,11 @@ Parser::parseStmt(
 
         return match( LEXTOK_KW_EXIT );
 
+    case LEXTOK_KW_CONST:
+    case LEXTOK_KW_VAR:
+    case LEXTOK_KW_BEGIN:
+        return parseBlock( blk );
+
     case LEXTOK_KW_INC:
         if( !match( LEXTOK_KW_INC ) ||
             !match( LEXTOK_LPAR ) )
@@ -800,9 +701,6 @@ Parser::parseStmt(
                 "%d\n", expr1 ) );
         return true;
 
-    case LEXTOK_KW_BEGIN:
-        return parseBlock( blk );
-
     case LEXTOK_SCOL:
     case LEXTOK_KW_END:
         return true;
@@ -815,7 +713,7 @@ Parser::parseStmt(
 bool
 Parser::parseStmtIdent(
     const std::string& name,
-    AstBlkStmtNode*& blk
+    AstBlkStmtNode* blk
     )
 {
     AstExprNode *expr, *val;
@@ -845,7 +743,7 @@ Parser::parseStmtIdent(
             name.c_str() );
 
         if( !match( LEXTOK_LPAR ) ||
-            !parseFuncArgList( fun ) ||
+            !parseFunExprArgs( fun ) ||
             !match( LEXTOK_RPAR ) )
             return false;
 
@@ -1445,7 +1343,7 @@ Parser::parseExpr5Ident(
             name.c_str() );
 
         return match( LEXTOK_LPAR )
-            && parseFuncArgList( fun )
+            && parseFunExprArgs( fun )
             && match( LEXTOK_RPAR );
 
     case LEXTOK_LBRA:
@@ -1489,6 +1387,66 @@ Parser::parseExpr5Ident(
     case LEXTOK_KW_END:
         expr = new AstVarExprNode(
             name.c_str() );
+        return true;
+
+    default:
+        return error();
+    }
+}
+
+bool
+Parser::parseFunExprArgs(
+    AstFunExprNode* fun
+    )
+{
+    AstExprNode* arg;
+
+#ifdef DEBUG_PARSER
+    fprintf( stderr, "parseFunExprArgs\n" );
+#endif /* DEBUG_PARSER */
+
+    switch( peek() )
+    {
+    case LEXTOK_IDENT:
+    case LEXTOK_NUMBER:
+    case LEXTOK_MINUS:
+    case LEXTOK_LPAR:
+        if( !parseExpr0( arg ) )
+            return false;
+
+        fun->addArg( arg );
+        return parseFunExprArgsRest( fun );
+
+    case LEXTOK_RPAR:
+        return true;
+
+    default:
+        return error();
+    }
+}
+
+bool
+Parser::parseFunExprArgsRest(
+    AstFunExprNode* fun
+    )
+{
+    AstExprNode* arg;
+
+#ifdef DEBUG_PARSER
+    fprintf( stderr, "parseFunExprArgsRest\n" );
+#endif /* DEBUG_PARSER */
+
+    switch( peek() )
+    {
+    case LEXTOK_COMMA:
+        if( !match( LEXTOK_COMMA ) ||
+            !parseExpr0( arg ) )
+            return false;
+
+        fun->addArg( arg );
+        return parseFunExprArgsRest( fun );
+
+    case LEXTOK_RPAR:
         return true;
 
     default:
