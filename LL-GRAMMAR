@@ -1,5 +1,5 @@
 Terminální abeceda T:
-ident number string + - * div mod = <> < <= > >= or and ( ) [ ] . .. , : ; := var const program function procedure forward integer array of begin end if then else while do for to downto exit readln write writeln
+ident number string + - * div mod = <> < <= > >= or and ( ) [ ] . .. , : ; := var const program function procedure forward integer array of begin end if then else while do for to downto exit inc dec readln write writeln
 
 Neterminální abeceda N:
 parseProgram parseFunDeclArgs parseFunDeclArgsRest parseFunExprArgs parseFunExprArgsRest parseFunDeclBody parseDeclsGlob parseDeclsLoc parseDeclGlob parseDeclLoc parseConstDeclRest parseVarDeclRest parseBlock parseBlockRest parseStmt parseStmtIdent parseStmtLvalIdent parseElseBranch parseForDirection parseExpr0 parseExpr0Rest parseExpr1 parseExpr1Rest parseExpr2 parseExpr2Rest parseExpr3 parseExpr3Rest parseExpr4 parseExpr4Rest parseExpr5 parseExpr5Ident parseMinusNumber parseTypeIdent parseIdentListRest
