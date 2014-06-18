@@ -65,34 +65,37 @@ AstConstDeclNode::translate(
 
     if( NULL_TREE == t )
     {
-        t = build_decl(
-            UNKNOWN_LOCATION, VAR_DECL,
-            get_identifier( mName.c_str() ),
-            build_qualified_type(
-                integer_type_node, TYPE_QUAL_CONST ) );
-        TREE_ADDRESSABLE( t ) = true;
-        TREE_USED( t ) = true;
-
-        if( NULL_TREE == ctx )
-        {
-            // Global constant
-            TREE_STATIC( t ) = true;
-            TREE_PUBLIC( t ) = true;
-        }
-
-        DECL_INITIAL( t ) =
-            build_int_cst(
-                integer_type_node, mVal );
-
-        symTable.registerVar(
-            mName.c_str(), t );
+        fprintf( stderr, "Unregistered constant `%s'\n",
+                 mName.c_str() );
+        return false;
     }
 
     return true;
 }
 
 bool
-AstConstDeclNode::unregister(
+AstConstDeclNode::registerSym(
+    SymTable& symTable
+    ) const
+{
+    tree t = build_decl(
+        UNKNOWN_LOCATION, VAR_DECL,
+        get_identifier( mName.c_str() ),
+        build_qualified_type(
+            integer_type_node, TYPE_QUAL_CONST ) );
+    TREE_ADDRESSABLE( t ) = true;
+    TREE_USED( t ) = true;
+
+    DECL_INITIAL( t ) =
+        build_int_cst(
+            integer_type_node, mVal );
+
+    return symTable.registerVar(
+        mName.c_str(), t );
+}
+
+bool
+AstConstDeclNode::unregisterSym(
     SymTable& symTable
     ) const
 {
@@ -138,43 +141,46 @@ AstVarDeclNode::translate(
     SymTable& symTable
     ) const
 {
-    t = symTable.lookupVar(
-        mName.c_str() );
+    t = mType->lookupSym(
+        mName.c_str(), symTable );
 
     if( NULL_TREE == t )
     {
-        tree type;
-        if( !mType->translate( type, ctx, symTable ) )
-            return false;
-
-        t = build_decl(
-            UNKNOWN_LOCATION, VAR_DECL,
-            get_identifier( mName.c_str() ),
-            type );
-        TREE_ADDRESSABLE( t ) = true;
-        TREE_USED( t ) = true;
-
-        if( NULL_TREE == ctx )
-        {
-            // Global variable
-            TREE_STATIC( t ) = true;
-            TREE_PUBLIC( t ) = true;
-        }
-
-        symTable.registerVar(
-            mName.c_str(), t );
+        fprintf( stderr, "Unregistered variable `%s'\n",
+                 mName.c_str() );
+        return false;
     }
 
     return true;
 }
 
 bool
-AstVarDeclNode::unregister(
+AstVarDeclNode::registerSym(
     SymTable& symTable
     ) const
 {
-    return symTable.unregisterVar(
-        mName.c_str() );
+    tree type;
+    if( !mType->translate( type, NULL_TREE, symTable ) )
+        return false;
+
+    tree t = build_decl(
+        UNKNOWN_LOCATION, VAR_DECL,
+        get_identifier( mName.c_str() ),
+        type );
+    TREE_ADDRESSABLE( t ) = true;
+    TREE_USED( t ) = true;
+
+    return mType->registerSym(
+        mName.c_str(), t, symTable );
+}
+
+bool
+AstVarDeclNode::unregisterSym(
+    SymTable& symTable
+    ) const
+{
+    return mType->unregisterSym(
+        mName.c_str(), symTable );
 }
 
 /*************************************************************************/
@@ -200,6 +206,18 @@ AstFunDeclNode::~AstFunDeclNode()
 
     delete mResType;
     delete mBody;
+}
+
+bool
+AstFunDeclNode::isProcedure() const
+{
+    return NULL == mResType;
+}
+
+bool
+AstFunDeclNode::isForward() const
+{
+    return NULL == mBody;
 }
 
 void
@@ -237,7 +255,7 @@ AstFunDeclNode::print(
     ) const
 {
     fprintf( fp, "%*c%s %s(\n",
-             off, ' ', (NULL != mResType ? "function" : "procedure"),
+             off, ' ', (isProcedure() ? "procedure" : "function"),
              mName.c_str() );
 
     ArgList::const_iterator cur, end;
@@ -250,19 +268,19 @@ AstFunDeclNode::print(
         cur->second->print( off + 2, fp );
     }
 
-    if( NULL != mResType )
+    if( isProcedure() )
+        fprintf( fp, "%*c);\n", off, ' ' );
+    else
     {
         fprintf( fp, "%*c) :\n", off, ' ' );
         mResType->print( off + 1, fp );
         fprintf( fp, "%*c;\n", off, ' ' );
     }
-    else
-        fprintf( fp, "%*c);\n", off, ' ' );
 
-    if( NULL != mBody )
-        mBody->print( off + 1, fp );
-    else
+    if( isForward() )
         fprintf( fp, "%*cforward;\n", off, ' ' );
+    else
+        mBody->print( off + 1, fp );
 }
 
 bool
@@ -277,6 +295,24 @@ AstFunDeclNode::translate(
 
     if( NULL_TREE == t )
     {
+        fprintf( stderr, "Unregistered function `%s'\n",
+                 mName.c_str() );
+        return false;
+    }
+
+    return true;
+}
+
+bool
+AstFunDeclNode::registerSym(
+    SymTable& symTable
+    ) const
+{
+    tree t = symTable.lookupFun(
+        mName.c_str() );
+
+    if( NULL_TREE == t )
+    {
         tree params = NULL_TREE;
         tree params_decl = NULL_TREE;
 
@@ -287,7 +323,7 @@ AstFunDeclNode::translate(
         {
             tree param;
             if( !cur->second->translate(
-                    param, ctx, symTable ) )
+                    param, NULL_TREE, symTable ) )
                 return false;
 
             tree param_decl =
@@ -310,10 +346,10 @@ AstFunDeclNode::translate(
         }
 
         tree restype;
-        if( NULL == mResType )
+        if( isProcedure() )
             restype = void_type_node;
         else if( !mResType->translate(
-                     restype, ctx, symTable ) )
+                     restype, NULL_TREE, symTable ) )
             return false;
 
         tree resdecl =
@@ -337,11 +373,12 @@ AstFunDeclNode::translate(
         TREE_STATIC( t ) = true;
         TREE_PUBLIC( t ) = true;
 
-        symTable.registerFun(
-            mName.c_str(), t );
+        if( !symTable.registerFun(
+                mName.c_str(), t ) )
+            return false;
     }
 
-    if( NULL != mBody )
+    if( !isForward() )
     {
         if( NULL_TREE != DECL_SAVED_TREE( t ) )
         {
@@ -350,33 +387,32 @@ AstFunDeclNode::translate(
             return false;
         }
 
-        tree params_decl = DECL_ARGUMENTS( t );
+        SymTable subTable( symTable );
 
+        tree resdecl = DECL_RESULT( t );
+        if( !isProcedure() &&
+            (!subTable.registerRes( resdecl ) ||
+             !mResType->registerSym(
+                 mName.c_str(), resdecl, subTable )) )
+            return false;
+
+        tree params_decl = DECL_ARGUMENTS( t );
         ArgList::const_iterator cur, end;
         cur = mArgs.begin();
         end = mArgs.end();
         for(; cur != end; ++cur )
         {
-            symTable.registerVar(
-                cur->first.c_str(), params_decl );
+            if( !cur->second->registerSym(
+                    cur->first.c_str(),
+                    params_decl, subTable ) )
+                return false;
 
             params_decl = TREE_CHAIN( params_decl );
         }
 
-        tree resdecl = DECL_RESULT( t );
-        symTable.registerRes( resdecl );
-
         tree bind;
-        if( !mBody->translate( bind, t, symTable ) )
+        if( !mBody->translate( bind, t, subTable ) )
             return false;
-
-        symTable.unregisterRes();
-
-        cur = mArgs.begin();
-        end = mArgs.end();
-        for(; cur != end; ++cur )
-            symTable.unregisterVar(
-                cur->first.c_str() );
 
         tree block =
             TREE_OPERAND( bind, 2 );
@@ -389,7 +425,7 @@ AstFunDeclNode::translate(
 }
 
 bool
-AstFunDeclNode::unregister(
+AstFunDeclNode::unregisterSym(
     SymTable& symTable
     ) const
 {
@@ -452,11 +488,17 @@ AstProgDeclNode::translate(
     endf = mFunDecls.end();
     for(; curf != endf; ++curf )
     {
-        tree fun;
-        if( !(*curf)->translate( fun, ctx, symTable ) )
+        if( !(*curf)->registerSym( symTable ) )
             return false;
 
-        register_global_function_declaration( fun );
+        if( !(*curf)->isForward() )
+        {
+            tree fun;
+            if( !(*curf)->translate( fun, ctx, symTable ) )
+                return false;
+
+            register_global_function_declaration( fun );
+        }
     }
 
     t = NULL_TREE;
@@ -464,7 +506,17 @@ AstProgDeclNode::translate(
 }
 
 bool
-AstProgDeclNode::unregister(
+AstProgDeclNode::registerSym(
+    SymTable&
+    ) const
+{
+    fprintf( stderr, "Program `%s' cannot be registered\n",
+             mName.c_str() );
+    return false;
+}
+
+bool
+AstProgDeclNode::unregisterSym(
     SymTable&
     ) const
 {

@@ -35,7 +35,22 @@ public:
     AstDeclNode( const char* name );
 
     /**
-     * @brief Unregisters the element from
+     * @brief Registers a symbol in the
+     *   symbol table.
+     *
+     * @param[in] symTable
+     *  The symbol table to use.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    virtual bool registerSym(
+        SymTable& symTable
+        ) const = 0;
+    /**
+     * @brief Unregisters an element from
      *   the symbol table.
      *
      * @param[in] symTable
@@ -46,7 +61,7 @@ public:
      * @retval false
      *   Unregistration failed.
      */
-    virtual bool unregister(
+    virtual bool unregisterSym(
         SymTable& symTable
         ) const = 0;
 
@@ -127,6 +142,22 @@ public:
         tree ctx,
         SymTable& symTable
         ) const;
+
+    /**
+     * @brief Registers the constant in the
+     *   symbol table.
+     *
+     * @param[in] symTable
+     *  The symbol table to use.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    bool registerSym(
+        SymTable& symTable
+        ) const;
     /**
      * @brief Unregisters the constant
      *   from the symbol table.
@@ -139,7 +170,7 @@ public:
      * @retval false
      *   Unregistration failed.
      */
-    bool unregister(
+    bool unregisterSym(
         SymTable& symTable
         ) const;
 
@@ -206,6 +237,22 @@ public:
         tree ctx,
         SymTable& symTable
         ) const;
+
+    /**
+     * @brief Registers the variable in the
+     *   symbol table.
+     *
+     * @param[in] symTable
+     *  The symbol table to use.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    bool registerSym(
+        SymTable& symTable
+        ) const;
     /**
      * @brief Unregisters the variable
      *  from the symbol table.
@@ -218,7 +265,7 @@ public:
      * @retval false
      *   Unregistration failed.
      */
-    bool unregister(
+    bool unregisterSym(
         SymTable& symTable
         ) const;
 
@@ -252,6 +299,25 @@ public:
      * @brief Frees the types and body.
      */
     ~AstFunDeclNode();
+
+    /**
+     * @brief Checks if this is a procedure.
+     *
+     * @retval true
+     *   This is a procedure.
+     * @retval false
+     *   This is not a procedure.
+     */
+    bool isProcedure() const;
+    /**
+     * @brief Checks if this is forward declaration.
+     *
+     * @retval true
+     *   This is a forward declaration.
+     * @retval false
+     *   This is not a forward declaration.
+     */
+    bool isForward() const;
 
     /**
      * @brief Adds an argument.
@@ -312,6 +378,22 @@ public:
         tree ctx,
         SymTable& symTable
         ) const;
+
+    /**
+     * @brief Registers the function in the
+     *   symbol table.
+     *
+     * @param[in] symTable
+     *  The symbol table to use.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    bool registerSym(
+        SymTable& symTable
+        ) const;
     /**
      * @brief Unregisters the function
      *   from the symbol table.
@@ -324,7 +406,7 @@ public:
      * @retval false
      *   Unregistration failed.
      */
-    bool unregister(
+    bool unregisterSym(
         SymTable& symTable
         ) const;
 
@@ -404,6 +486,22 @@ public:
         tree ctx,
         SymTable& symTable
         ) const;
+
+    /**
+     * @brief Registers the program in the
+     *   symbol table.
+     *
+     * @param[in] symTable
+     *  The symbol table to use.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    bool registerSym(
+        SymTable& symTable
+        ) const;
     /**
      * @brief Unregisters the program
      *   from the symbol table.
@@ -416,7 +514,7 @@ public:
      * @retval false
      *   Unregistration failed.
      */
-    bool unregister(
+    bool unregisterSym(
         SymTable& symTable
         ) const;
 
