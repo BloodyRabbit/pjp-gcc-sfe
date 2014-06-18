@@ -184,17 +184,15 @@ AstBlkStmtNode::translate(
 {
     tree decls = NULL_TREE;
     tree stmts = alloc_stmt_list();
+    SymTable subTable( symTable );
 
     std::vector< AstLocDeclNode* >::const_iterator curd, endd;
     curd = mDecls.begin();
     endd = mDecls.end();
     for(; curd != endd; ++curd )
     {
-        if( !(*curd)->registerSym( symTable ) )
-            return false;
-
         tree decl;
-        if( !(*curd)->translate( decl, ctx, symTable ) )
+        if( !(*curd)->translate( decl, ctx, subTable ) )
             return false;
 
         decls = chainon( decls, decl );
@@ -213,17 +211,11 @@ AstBlkStmtNode::translate(
     for(; curs != ends; ++curs )
     {
         tree stmt;
-        if( !(*curs)->translate( stmt, block, symTable ) )
+        if( !(*curs)->translate( stmt, block, subTable ) )
             return false;
 
         append_to_statement_list( stmt, &stmts );
     }
-
-    curd = mDecls.begin();
-    endd = mDecls.end();
-    for(; curd != endd; ++curd )
-        if( !(*curd)->unregisterSym( symTable ) )
-            return false;
 
     t = build3(
         BIND_EXPR, void_type_node,

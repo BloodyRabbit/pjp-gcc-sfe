@@ -39,7 +39,7 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    virtual tree lookupSym(
+    virtual tree getSym(
         const char* name,
         SymTable& symTable
         ) const = 0;
@@ -57,25 +57,9 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    virtual bool registerSym(
+    virtual bool addSym(
         const char* name,
         tree decl,
-        SymTable& symTable
-        ) const = 0;
-    /**
-     * @brief Unregisters a symbol according
-     *   to the type.
-     *
-     * @param[in] name
-     *   Name of the symbol.
-     * @param[in] symTable
-     *   The SymTable to use.
-     *
-     * @return
-     *   Whatever returned by SymTable.
-     */
-    virtual bool unregisterSym(
-        const char* name,
         SymTable& symTable
         ) const = 0;
 };
@@ -109,7 +93,7 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    tree lookupSym(
+    tree getSym(
         const char* name,
         SymTable& symTable
         ) const;
@@ -127,25 +111,9 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    bool registerSym(
+    bool addSym(
         const char* name,
         tree decl,
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters a symbol according
-     *   to the type.
-     *
-     * @param[in] name
-     *   Name of the symbol.
-     * @param[in] symTable
-     *   The SymTable to use.
-     *
-     * @return
-     *   Whatever returned by SymTable.
-     */
-    bool unregisterSym(
-        const char* name,
         SymTable& symTable
         ) const;
 
@@ -232,7 +200,7 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    tree lookupSym(
+    tree getSym(
         const char* name,
         SymTable& symTable
         ) const;
@@ -250,25 +218,9 @@ public:
      * @return
      *   Whatever returned by SymTable.
      */
-    bool registerSym(
+    bool addSym(
         const char* name,
         tree decl,
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters a symbol according
-     *   to the type.
-     *
-     * @param[in] name
-     *   Name of the symbol.
-     * @param[in] symTable
-     *   The SymTable to use.
-     *
-     * @return
-     *   Whatever returned by SymTable.
-     */
-    bool unregisterSym(
-        const char* name,
         SymTable& symTable
         ) const;
 

@@ -34,37 +34,6 @@ public:
      */
     AstDeclNode( const char* name );
 
-    /**
-     * @brief Registers a symbol in the
-     *   symbol table.
-     *
-     * @param[in] symTable
-     *  The symbol table to use.
-     *
-     * @retval true
-     *   Registration succeeded.
-     * @retval false
-     *   Registration failed.
-     */
-    virtual bool registerSym(
-        SymTable& symTable
-        ) const = 0;
-    /**
-     * @brief Unregisters an element from
-     *   the symbol table.
-     *
-     * @param[in] symTable
-     *   The symbol table.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    virtual bool unregisterSym(
-        SymTable& symTable
-        ) const = 0;
-
 protected:
     /// Name of the element.
     std::string mName;
@@ -143,37 +112,6 @@ public:
         SymTable& symTable
         ) const;
 
-    /**
-     * @brief Registers the constant in the
-     *   symbol table.
-     *
-     * @param[in] symTable
-     *  The symbol table to use.
-     *
-     * @retval true
-     *   Registration succeeded.
-     * @retval false
-     *   Registration failed.
-     */
-    bool registerSym(
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters the constant
-     *   from the symbol table.
-     *
-     * @param[in] symTable
-     *   The symbol table to use.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterSym(
-        SymTable& symTable
-        ) const;
-
 protected:
     /// Value of the constant.
     int mVal;
@@ -235,37 +173,6 @@ public:
     bool translate(
         tree& t,
         tree ctx,
-        SymTable& symTable
-        ) const;
-
-    /**
-     * @brief Registers the variable in the
-     *   symbol table.
-     *
-     * @param[in] symTable
-     *  The symbol table to use.
-     *
-     * @retval true
-     *   Registration succeeded.
-     * @retval false
-     *   Registration failed.
-     */
-    bool registerSym(
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters the variable
-     *  from the symbol table.
-     *
-     * @param[in] symTable
-     *   The symbol table to use.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterSym(
         SymTable& symTable
         ) const;
 
@@ -379,37 +286,6 @@ public:
         SymTable& symTable
         ) const;
 
-    /**
-     * @brief Registers the function in the
-     *   symbol table.
-     *
-     * @param[in] symTable
-     *  The symbol table to use.
-     *
-     * @retval true
-     *   Registration succeeded.
-     * @retval false
-     *   Registration failed.
-     */
-    bool registerSym(
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters the function
-     *   from the symbol table.
-     *
-     * @param[in] symTable
-     *   The symbol table to use.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterSym(
-        SymTable& symTable
-        ) const;
-
 protected:
     /// Names and types of the arguments.
     ArgList mArgs;
@@ -484,37 +360,6 @@ public:
     bool translate(
         tree& t,
         tree ctx,
-        SymTable& symTable
-        ) const;
-
-    /**
-     * @brief Registers the program in the
-     *   symbol table.
-     *
-     * @param[in] symTable
-     *  The symbol table to use.
-     *
-     * @retval true
-     *   Registration succeeded.
-     * @retval false
-     *   Registration failed.
-     */
-    bool registerSym(
-        SymTable& symTable
-        ) const;
-    /**
-     * @brief Unregisters the program
-     *   from the symbol table.
-     *
-     * @param[in] symTable
-     *   The symbol table to use.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterSym(
         SymTable& symTable
         ) const;
 

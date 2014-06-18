@@ -18,34 +18,24 @@ AstIntTypeNode::clone() const
 }
 
 tree
-AstIntTypeNode::lookupSym(
+AstIntTypeNode::getSym(
     const char* name,
     SymTable& symTable
     ) const
 {
-    return symTable.lookupVar(
+    return symTable.getVar(
         name );
 }
 
 bool
-AstIntTypeNode::registerSym(
+AstIntTypeNode::addSym(
     const char* name,
     tree decl,
     SymTable& symTable
     ) const
 {
-    return symTable.registerVar(
+    return symTable.addVar(
         name, decl );
-}
-
-bool
-AstIntTypeNode::unregisterSym(
-    const char* name,
-    SymTable& symTable
-    ) const
-{
-    return symTable.unregisterVar(
-        name );
 }
 
 void
@@ -96,35 +86,25 @@ AstArrTypeNode::clone() const
 }
 
 tree
-AstArrTypeNode::lookupSym(
+AstArrTypeNode::getSym(
     const char* name,
     SymTable& symTable
     ) const
 {
     int off;
-    return symTable.lookupArr(
+    return symTable.getArr(
         name, off );
 }
 
 bool
-AstArrTypeNode::registerSym(
+AstArrTypeNode::addSym(
     const char* name,
     tree decl,
     SymTable& symTable
     ) const
 {
-    return symTable.registerArr(
+    return symTable.addArr(
         name, -mBegin, decl );
-}
-
-bool
-AstArrTypeNode::unregisterSym(
-    const char* name,
-    SymTable& symTable
-    ) const
-{
-    return symTable.unregisterArr(
-        name );
 }
 
 void

@@ -15,14 +15,6 @@ SymTable::SymTable()
 {
 }
 
-SymTable::SymTable(
-    const SymTable& symTable
-    )
-: mResDecl( NULL_TREE ),
-  mFunDecls( symTable.mFunDecls )
-{
-}
-
 tree
 SymTable::getRes() const
 {
@@ -30,7 +22,7 @@ SymTable::getRes() const
 }
 
 bool
-SymTable::registerRes(
+SymTable::setRes(
     tree resDecl
     )
 {
@@ -44,21 +36,8 @@ SymTable::registerRes(
     return true;
 }
 
-bool
-SymTable::unregisterRes()
-{
-    if( NULL_TREE == mResDecl )
-    {
-        fprintf( stderr, "Trying to unregister nonexistent result declaration\n" );
-        return false;
-    }
-
-    mResDecl = NULL_TREE;
-    return true;
-}
-
 tree
-SymTable::lookupVar(
+SymTable::getVar(
     const char* name
     ) const
 {
@@ -81,7 +60,7 @@ SymTable::lookupVar(
 }
 
 bool
-SymTable::registerVar(
+SymTable::addVar(
     const char* name,
     tree varDecl
     )
@@ -103,25 +82,8 @@ SymTable::registerVar(
     return true;
 }
 
-bool
-SymTable::unregisterVar(
-    const char* name
-    )
-{
-    if( mVarDecls.erase( name ) < 1 )
-    {
-        fprintf( stderr, "Variable `%s' does not exist\n", name );
-        return false;
-    }
-
-#ifdef DEBUG_SYMTABLE
-    fprintf( stderr, "Unregistered variable `%s'\n", name );
-#endif /* DEBUG_SYMTABLE */
-    return true;
-}
-
 tree
-SymTable::lookupArr(
+SymTable::getArr(
     const char* name,
     int& off
     ) const
@@ -146,7 +108,7 @@ SymTable::lookupArr(
 }
 
 bool
-SymTable::registerArr(
+SymTable::addArr(
     const char* name,
     int off,
     tree arrDecl
@@ -171,25 +133,8 @@ SymTable::registerArr(
     return true;
 }
 
-bool
-SymTable::unregisterArr(
-    const char* name
-    )
-{
-    if( mArrDecls.erase( name ) < 1 )
-    {
-        fprintf( stderr, "Array `%s' does not exist\n", name );
-        return false;
-    }
-
-#ifdef DEBUG_SYMTABLE
-    fprintf( stderr, "Unregistered array `%s'\n", name );
-#endif /* DEBUG_SYMTABLE */
-    return true;
-}
-
 tree
-SymTable::lookupFun(
+SymTable::getFun(
     const char* name
     ) const
 {
@@ -212,7 +157,7 @@ SymTable::lookupFun(
 }
 
 bool
-SymTable::registerFun(
+SymTable::addFun(
     const char* name,
     tree funDecl
     )
@@ -229,24 +174,6 @@ SymTable::registerFun(
 #ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Registered function `%s'\n", name );
     debug_tree( funDecl );
-#endif /* DEBUG_SYMTABLE */
-
-    return true;
-}
-
-bool
-SymTable::unregisterFun(
-    const char* name
-    )
-{
-    if( mFunDecls.erase( name ) < 1 )
-    {
-        fprintf( stderr, "Function `%s' does not exist\n", name );
-        return false;
-    }
-
-#ifdef DEBUG_SYMTABLE
-    fprintf( stderr, "Unregistered function `%s'\n", name );
 #endif /* DEBUG_SYMTABLE */
 
     return true;

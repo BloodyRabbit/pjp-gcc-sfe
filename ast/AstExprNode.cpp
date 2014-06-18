@@ -127,8 +127,7 @@ AstVarExprNode::translate(
     SymTable& symTable
     ) const
 {
-    t = symTable.lookupVar(
-        mName.c_str() );
+    t = symTable.getVar( mName.c_str() );
 
     if( NULL_TREE == t )
     {
@@ -185,7 +184,7 @@ AstArrExprNode::translate(
     ) const
 {
     int off;
-    tree array = symTable.lookupArr(
+    tree array = symTable.getArr(
         mName.c_str(), off );
 
     if( NULL_TREE == array )
@@ -273,7 +272,7 @@ AstFunExprNode::translate(
     ) const
 {
     tree fndecl =
-        symTable.lookupFun( mName.c_str() );
+        symTable.getFun( mName.c_str() );
 
     if( NULL_TREE == fndecl )
     {

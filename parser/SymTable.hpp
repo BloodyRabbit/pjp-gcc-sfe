@@ -25,16 +25,6 @@ public:
      * @brief Initializes the table.
      */
     SymTable();
-    /**
-     * @brief Initializes the table.
-     *
-     * Copies functions declarations while
-     * ignoring variable and array declarations.
-     *
-     * @param[in] symTable
-     *   Another table to initialize by.
-     */
-    SymTable( const SymTable& symTable );
 
     /**
      * @brief Obtains a registered result declaration.
@@ -44,7 +34,7 @@ public:
      */
     tree getRes() const;
     /**
-     * @brief Registers a result declaration.
+     * @brief Sets a result declaration.
      *
      * @param[in] resDecl
      *   The result declaration.
@@ -54,16 +44,7 @@ public:
      * @retval false
      *   Registration failed.
      */
-    bool registerRes( tree resDecl );
-    /**
-     * @brief Unregisters a result declaration.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterRes();
+    bool setRes( tree resDecl );
 
     /**
      * @brief Looks up a variable declaration.
@@ -74,7 +55,7 @@ public:
      * @return
      *   Found variable declaration.
      */
-    tree lookupVar( const char* name ) const;
+    tree getVar( const char* name ) const;
     /**
      * @brief Registers a variable declaration.
      *
@@ -88,19 +69,7 @@ public:
      * @retval false
      *   Registration failed.
      */
-    bool registerVar( const char* name, tree varDecl );
-    /**
-     * @brief Unregisters a variable declaration.
-     *
-     * @param[in] name
-     *   Name of the variable.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterVar( const char* name );
+    bool addVar( const char* name, tree varDecl );
 
     /**
      * @brief Looks up an array declaration.
@@ -113,7 +82,7 @@ public:
      * @return
      *   Found array declaration.
      */
-    tree lookupArr( const char* name, int& off ) const;
+    tree getArr( const char* name, int& off ) const;
     /**
      * @brief Registers an array declaration.
      *
@@ -129,23 +98,11 @@ public:
      * @retval false
      *   Registration failed.
      */
-    bool registerArr(
+    bool addArr(
         const char* name,
         int off,
         tree arrDecl
         );
-    /**
-     * @brief Unregisters an array declaration.
-     *
-     * @param[in] name
-     *   Name of the array.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterArr( const char* name );
 
     /**
      * @brief Looks up a function declaration.
@@ -156,7 +113,7 @@ public:
      * @return
      *   Found function declaration.
      */
-    tree lookupFun( const char* name ) const;
+    tree getFun( const char* name ) const;
     /**
      * @brief Registers a function declaration.
      *
@@ -170,19 +127,7 @@ public:
      * @retval false
      *   Registration failed.
      */
-    bool registerFun( const char* name, tree funDecl );
-    /**
-     * @brief Unregisters a function declaration.
-     *
-     * @param[in] name
-     *   Name of the function.
-     *
-     * @retval true
-     *   Unregistration succeeded.
-     * @retval false
-     *   Unregistration failed.
-     */
-    bool unregisterFun( const char* name );
+    bool addFun( const char* name, tree funDecl );
 
 protected:
     /// Result declaration.
