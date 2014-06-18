@@ -184,8 +184,9 @@ AstArrExprNode::translate(
     SymTable& symTable
     ) const
 {
-    tree array = symTable.lookupVar(
-        mName.c_str() );
+    int off;
+    tree array = symTable.lookupArr(
+        mName.c_str(), off );
 
     if( NULL_TREE == array )
     {
@@ -198,6 +199,15 @@ AstArrExprNode::translate(
     if( !mIndex->translate(
             index, ctx, symTable ) )
         return false;
+
+    if( 0 < off )
+        index = build2(
+            PLUS_EXPR, TREE_TYPE( index ), index,
+            build_int_cst( integer_type_node, off ) );
+    else if( 0 > off )
+        index = build2(
+            MINUS_EXPR, TREE_TYPE( index ), index,
+            build_int_cst( integer_type_node, -off ) );
 
     t = build4(
         ARRAY_REF, TREE_TYPE( TREE_TYPE( array ) ),

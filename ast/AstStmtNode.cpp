@@ -190,6 +190,9 @@ AstBlkStmtNode::translate(
     endd = mDecls.end();
     for(; curd != endd; ++curd )
     {
+        if( !(*curd)->registerSym( symTable ) )
+            return false;
+
         tree decl;
         if( !(*curd)->translate( decl, ctx, symTable ) )
             return false;
@@ -219,7 +222,8 @@ AstBlkStmtNode::translate(
     curd = mDecls.begin();
     endd = mDecls.end();
     for(; curd != endd; ++curd )
-        (*curd)->unregister( symTable );
+        if( !(*curd)->unregisterSym( symTable ) )
+            return false;
 
     t = build3(
         BIND_EXPR, void_type_node,
@@ -409,12 +413,10 @@ AstExitStmtNode::translate(
     SymTable& symTable
     ) const
 {
-    tree resdecl = symTable.getRes();
-
     t = build1(
         RETURN_EXPR,
         void_type_node,
-        resdecl );
+        symTable.getRes() );
     return true;
 }
 
