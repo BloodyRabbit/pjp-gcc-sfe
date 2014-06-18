@@ -49,7 +49,7 @@ struct GTY(()) lang_identifier {
 };
 
 union GTY((desc("TREE_CODE(&%h.node)"))) lang_tree_node {
-	union GTY((tag ("1"))) tree_node node;
+        union GTY((tag ("1"))) tree_node node;
 };
 
 struct GTY(()) lang_type {
@@ -79,9 +79,9 @@ void sfe_init_options (unsigned int, struct cl_decoded_option *) {
 
 /* handle specific option - called by opts.c */
 bool sfe_handle_option (size_t scode, const char *arg,
-		   int value ATTRIBUTE_UNUSED, int kind ATTRIBUTE_UNUSED,
-		   location_t loc ATTRIBUTE_UNUSED,
-		   const struct cl_option_handlers *handlers ATTRIBUTE_UNUSED) {
+                   int value ATTRIBUTE_UNUSED, int kind ATTRIBUTE_UNUSED,
+                   location_t loc ATTRIBUTE_UNUSED,
+                   const struct cl_option_handlers *handlers ATTRIBUTE_UNUSED) {
   enum opt_code code = (enum opt_code) scode;
 
   printf("Option: %s\n", arg); //zde by se měly řešit argumenty. Viz gcc/c-family/c-opts.c
@@ -133,13 +133,13 @@ void tree_dump_original (tree fndecl) {
 
       if (local_dump_flags & TDF_RAW) dump_node (DECL_SAVED_TREE (fndecl), TDF_SLIM | local_dump_flags, dump_orig);
       else {
-	struct function fn;
-	fn.decl = fndecl;
-	fn.curr_properties = 0;
-	fn.cfg = NULL;
-	DECL_STRUCT_FUNCTION(fndecl) = &fn;
-	dump_function_to_file(fndecl, dump_orig, 0);
-	DECL_STRUCT_FUNCTION(fndecl) = NULL;
+        struct function fn;
+        fn.decl = fndecl;
+        fn.curr_properties = 0;
+        fn.cfg = NULL;
+        DECL_STRUCT_FUNCTION(fndecl) = &fn;
+        dump_function_to_file(fndecl, dump_orig, 0);
+        DECL_STRUCT_FUNCTION(fndecl) = NULL;
       }
       fprintf (dump_orig, "\n");
 
@@ -169,11 +169,11 @@ void sfe_parse_input_files(const char** filenames, unsigned filename_count) {
   AstNode* ast;
 
   for(unsigned i = 0; i < filename_count; i++) {
-    printf("Parsing: %s\n", filenames[i]);
+    printf("Processing file `%s'\n", filenames[i]);
     if( !(file = fopen( filenames[i], "r" )) )
     {
-	perror( "fopen" );
-	continue;
+        perror( "fopen" );
+        continue;
     }
 
     LexAnalyzer lexan( file );
@@ -181,20 +181,18 @@ void sfe_parse_input_files(const char** filenames, unsigned filename_count) {
 
     if( !parser.parse( ast ) )
     {
-	printf( "Failed to parse file `%s'\n", filenames[i] );
-	continue;
+        printf( "Failed to parse file `%s'\n", filenames[i] );
+        continue;
     }
 
     printf( "File `%s' parsed successfully\n", filenames[i] );
-    ast->print( 1, stdout );
+    // ast->print( 1, stdout );
 
-    tree t;
-    SymTable symTable;
-    if( !ast->translate( t, NULL_TREE, symTable ) )
+    if( !ast->translate() )
     {
-	printf( "Failed to translate file `%s'\n", filenames[i] );
-	delete ast;
-	continue;
+        printf( "Failed to translate file `%s'\n", filenames[i] );
+        delete ast;
+        continue;
     }
 
     printf( "File `%s' translated successfully\n", filenames[i] );
@@ -217,23 +215,23 @@ void sfe_finish (void) {
 }
 
 static bool sfe_mark_addressable (tree exp) {
-	gcc_unreachable ();
+        gcc_unreachable ();
 }
 
 static tree sfe_type_for_size (unsigned precision, int unsignedp) {
-	gcc_unreachable ();
+        gcc_unreachable ();
 }
 
 static tree sfe_type_for_mode (enum machine_mode mode, int unsignedp) {
-	gcc_unreachable ();
+        gcc_unreachable ();
 }
 
 static tree pushdecl (tree decl) {
-	gcc_unreachable ();
+        gcc_unreachable ();
 }
 
 static tree getdecls (void) {
-	return NULL;
+        return NULL;
 }
 
 /* flush global declarations */
@@ -249,11 +247,11 @@ void sfe_write_globals (void) {
 }
 
 static bool global_bindings_p (void) {
-	gcc_unreachable ();
+        gcc_unreachable ();
 }
 
 tree convert (tree type, tree expr) {
-	return NULL;
+        return NULL;
 }
 
 #include "debug.h"

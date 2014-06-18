@@ -63,9 +63,7 @@ main(
         ast->print( 1, stdout );
 #endif /* DEBUG_AST */
 
-        tree t;
-        SymTable symTable;
-        if( !ast->translate( t, NULL_TREE, symTable ) )
+        if( !ast->translate() )
         {
             printf( "Failed to translate file `%s'\n", argv[i] );
             delete ast;
