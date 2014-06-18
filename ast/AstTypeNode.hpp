@@ -26,6 +26,58 @@ public:
      *   Clone of the node.
      */
     virtual AstTypeNode* clone() const = 0;
+
+    /**
+     * @brief Looks up a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    virtual tree lookupSym(
+        const char* name,
+        SymTable& symTable
+        ) const = 0;
+    /**
+     * @brief Registers a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] decl
+     *   Declaration of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    virtual bool registerSym(
+        const char* name,
+        tree decl,
+        SymTable& symTable
+        ) const = 0;
+    /**
+     * @brief Unregisters a symbol according
+     *   to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    virtual bool unregisterSym(
+        const char* name,
+        SymTable& symTable
+        ) const = 0;
 };
 
 /**
@@ -44,6 +96,58 @@ public:
      *   Clone of the node.
      */
     AstTypeNode* clone() const;
+
+    /**
+     * @brief Looks up a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    tree lookupSym(
+        const char* name,
+        SymTable& symTable
+        ) const;
+    /**
+     * @brief Registers a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] decl
+     *   Declaration of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    bool registerSym(
+        const char* name,
+        tree decl,
+        SymTable& symTable
+        ) const;
+    /**
+     * @brief Unregisters a symbol according
+     *   to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    bool unregisterSym(
+        const char* name,
+        SymTable& symTable
+        ) const;
 
     /**
      * @brief Prints the node to a file.
@@ -115,6 +219,58 @@ public:
      *   Clone of the node.
      */
     AstTypeNode* clone() const;
+
+    /**
+     * @brief Looks up a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    tree lookupSym(
+        const char* name,
+        SymTable& symTable
+        ) const;
+    /**
+     * @brief Registers a symbol according
+     *  to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] decl
+     *   Declaration of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    bool registerSym(
+        const char* name,
+        tree decl,
+        SymTable& symTable
+        ) const;
+    /**
+     * @brief Unregisters a symbol according
+     *   to the type.
+     *
+     * @param[in] name
+     *   Name of the symbol.
+     * @param[in] symTable
+     *   The SymTable to use.
+     *
+     * @return
+     *   Whatever returned by SymTable.
+     */
+    bool unregisterSym(
+        const char* name,
+        SymTable& symTable
+        ) const;
 
     /**
      * @brief Prints the node to a file.

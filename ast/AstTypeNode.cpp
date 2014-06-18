@@ -6,6 +6,7 @@
  */
 
 #include "ast/AstTypeNode.hpp"
+#include "parser/SymTable.hpp"
 
 /*************************************************************************/
 /* AstIntTypeNode                                                        */
@@ -14,6 +15,37 @@ AstTypeNode*
 AstIntTypeNode::clone() const
 {
     return new AstIntTypeNode();
+}
+
+tree
+AstIntTypeNode::lookupSym(
+    const char* name,
+    SymTable& symTable
+    ) const
+{
+    return symTable.lookupVar(
+        name );
+}
+
+bool
+AstIntTypeNode::registerSym(
+    const char* name,
+    tree decl,
+    SymTable& symTable
+    ) const
+{
+    return symTable.registerVar(
+        name, decl );
+}
+
+bool
+AstIntTypeNode::unregisterSym(
+    const char* name,
+    SymTable& symTable
+    ) const
+{
+    return symTable.unregisterVar(
+        name );
 }
 
 void
@@ -61,6 +93,38 @@ AstArrTypeNode::clone() const
     return new AstArrTypeNode(
         mBegin, mEnd,
         mElemType->clone() );
+}
+
+tree
+AstArrTypeNode::lookupSym(
+    const char* name,
+    SymTable& symTable
+    ) const
+{
+    int off;
+    return symTable.lookupArr(
+        name, off );
+}
+
+bool
+AstArrTypeNode::registerSym(
+    const char* name,
+    tree decl,
+    SymTable& symTable
+    ) const
+{
+    return symTable.registerArr(
+        name, -mBegin, decl );
+}
+
+bool
+AstArrTypeNode::unregisterSym(
+    const char* name,
+    SymTable& symTable
+    ) const
+{
+    return symTable.unregisterArr(
+        name );
 }
 
 void
