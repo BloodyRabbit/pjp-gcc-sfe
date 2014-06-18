@@ -25,6 +25,16 @@ public:
      * @brief Initializes the table.
      */
     SymTable();
+    /**
+     * @brief Initializes the table.
+     *
+     * Copies functions declarations while
+     * ignoring variable and array declarations.
+     *
+     * @param[in] symTable
+     *   Another table to initialize by.
+     */
+    SymTable( const SymTable& symTable );
 
     /**
      * @brief Obtains a registered result declaration.
@@ -93,6 +103,51 @@ public:
     bool unregisterVar( const char* name );
 
     /**
+     * @brief Looks up an array declaration.
+     *
+     * @param[in] name
+     *   Name of the array.
+     * @param[out] off
+     *   Array index offset.
+     *
+     * @return
+     *   Found array declaration.
+     */
+    tree lookupArr( const char* name, int& off ) const;
+    /**
+     * @brief Registers an array declaration.
+     *
+     * @param[in] name
+     *   Name of the variable.
+     * @param[in] off
+     *   Array index offset.
+     * @param[in] arrDecl
+     *   The array declaration.
+     *
+     * @retval true
+     *   Registration succeeded.
+     * @retval false
+     *   Registration failed.
+     */
+    bool registerArr(
+        const char* name,
+        int off,
+        tree arrDecl
+        );
+    /**
+     * @brief Unregisters an array declaration.
+     *
+     * @param[in] name
+     *   Name of the array.
+     *
+     * @retval true
+     *   Unregistration succeeded.
+     * @retval false
+     *   Unregistration failed.
+     */
+    bool unregisterArr( const char* name );
+
+    /**
      * @brief Looks up a function declaration.
      *
      * @param[in] name
@@ -133,8 +188,10 @@ protected:
     /// Result declaration.
     tree mResDecl;
 
-    /// Variable declarations.
+    /// Variable/constant declarations.
     std::map< std::string, tree > mVarDecls;
+    /// Array declarations.
+    std::map< std::string, std::pair< int, tree > > mArrDecls;
     /// Function declarations.
     std::map< std::string, tree > mFunDecls;
 };

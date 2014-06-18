@@ -15,6 +15,14 @@ SymTable::SymTable()
 {
 }
 
+SymTable::SymTable(
+    const SymTable& symTable
+    )
+: mResDecl( NULL_TREE ),
+  mFunDecls( symTable.mFunDecls )
+{
+}
+
 tree
 SymTable::getRes() const
 {
@@ -108,6 +116,74 @@ SymTable::unregisterVar(
 
 #ifdef DEBUG_SYMTABLE
     fprintf( stderr, "Unregistered variable `%s'\n", name );
+#endif /* DEBUG_SYMTABLE */
+    return true;
+}
+
+tree
+SymTable::lookupArr(
+    const char* name,
+    int& off
+    ) const
+{
+    std::map< std::string, std::pair< int, tree > >::const_iterator itr;
+    itr = mArrDecls.find( name );
+    if( mArrDecls.end() == itr )
+    {
+#ifdef DEBUG_SYMTABLE
+        fprintf( stderr, "Lookup of array `%s' failed\n", name );
+#endif /* DEBUG_SYMTABLE */
+
+        return NULL_TREE;
+    }
+
+#ifdef DEBUG_SYMTABLE
+    fprintf( stderr, "Array `%s' looked up\n", name );
+#endif /* DEBUG_SYMTABLE */
+
+    off = itr->second.first;
+    return itr->second.second;
+}
+
+bool
+SymTable::registerArr(
+    const char* name,
+    int off,
+    tree arrDecl
+    )
+{
+    std::pair< std::map< std::string, std::pair< int, tree > >::iterator, bool > res;
+    res = mArrDecls.insert(
+        std::make_pair(
+            std::string( name ),
+            std::make_pair( off, arrDecl ) ) );
+    if( !res.second )
+    {
+        fprintf( stderr, "Array `%s' already exists\n", name );
+        return false;
+    }
+
+#ifdef DEBUG_SYMTABLE
+    fprintf( stderr, "Registered array `%s'\n", name );
+    debug_tree( arrDecl );
+#endif /* DEBUG_SYMTABLE */
+
+    return true;
+}
+
+bool
+SymTable::unregisterArr(
+    const char* name
+    )
+{
+    if( mArrDecls.erase( name ) < 1 )
+    {
+        fprintf( stderr, "Array `%s' does not exist\n", name );
+        return false;
+    }
+
+#ifdef DEBUG_SYMTABLE
+    fprintf( stderr, "Unregistered array `%s'\n", name );
 #endif /* DEBUG_SYMTABLE */
     return true;
 }
